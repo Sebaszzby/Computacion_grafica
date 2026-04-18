@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linea dinamica</title>
+</head>
+<body>
+    <h2>Línea Dinámica desarrollado por Sebastian Altamirano Ochoa</h2>
+    <canvas id="myCanvas" width="800" height="400" style="border: 1px solid black;"></canvas>
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    // variables necesarias para el graficos
+    var xstart = 0; 
+    var xend = 800; 
+    var step  = 0.1; 
+    var time = 0; 
+
+    function drawGraph() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+        // Calculamos el centro exacto del canvas
+        var centroX = canvas.width / 2;
+        var centroY = canvas.height / 2;
+
+        // --- INICIO DIBUJAR PLANO CARTESIANO ---
+        ctx.beginPath();
+        ctx.strokeStyle = '#cccccc'; // Un gris claro para no opacar la función
+        ctx.lineWidth = 2; 
+        
+        // Eje X (Horizontal, exactamente en el centro vertical)
+        ctx.moveTo(0, centroY);
+        ctx.lineTo(canvas.width, centroY);
+        
+        // Eje Y (Vertical, exactamente en el centro horizontal)
+        ctx.moveTo(centroX, 0); 
+        ctx.lineTo(centroX, canvas.height);
+        
+        ctx.stroke();
+        // --- FIN DIBUJAR PLANO CARTESIANO ---
+
+
+        // --- INICIO ONDA SINUSOIDAL ---
+        ctx.beginPath();
+        ctx.strokeStyle = 'blue'; 
+        ctx.lineWidth = 2; 
+        
+        for (var x = xstart; x < xend; x += step) {
+            // Ajuste matemático: Le restamos 'centroX' a 'x' para que 
+            // el valor 0 de la fórmula caiga exactamente en el eje Y.
+            var mathX = x - centroX; 
+            var y = Math.sin(mathX * 0.01 + time); 
+
+            if (x === xstart) {
+                // Usamos 'centroY' para mantener el código más limpio
+                ctx.moveTo(x, centroY - y * 100); 
+            } 
+            else {
+                ctx.lineTo(x, centroY - y * 100); 
+            }
+        }
+        ctx.stroke(); 
+        // --- FIN ONDA SINUSOIDAL ---
+    }
+
+    function animate() {
+        drawGraph(); 
+        time += 0.08; 
+        requestAnimationFrame(animate); 
+    }
+
+    animate(); 
+</script>  
+</body>
+</html>

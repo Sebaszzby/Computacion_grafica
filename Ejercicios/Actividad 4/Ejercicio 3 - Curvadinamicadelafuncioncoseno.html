@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 3: Curva Dinámica del Coseno</title>
+    <style>
+        /* Estilos generales y fondo */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            color: #333;
+        }
+
+        /* Contenedor tipo tarjeta flotante */
+        #contenedor-grafico {
+            background-color: white;
+            padding: 25px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        h2 { margin-bottom: 5px; color: #1a1a2e; }
+        .autor { color: #666; font-size: 0.9em; margin-bottom: 20px; font-style: italic; }
+
+        /* Lienzo oscuro para resaltar el neón */
+        canvas {
+            background-color: #1a1a2e; /* Azul noche */
+            border-radius: 12px;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.6);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="contenedor-grafico">
+        <h2>Curva Dinámica de la Función Coseno</h2>
+        <div class="autor">Desarrollado por Sebastian Altamirano Ochoa</div>
+        
+        <canvas id="myCanvas" width="800" height="400"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Variables de control
+        let time = 0; // El tiempo que hará avanzar la curva
+        const step = 2; // Distancia entre los puntos dibujados (resolución de la curva)
+        
+        // Calculamos el centro del canvas para el plano cartesiano
+        const centroX = canvas.width / 2;
+        const centroY = canvas.height / 2;
+
+        function dibujarPlano() {
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.15)"; // Líneas tenues
+            ctx.lineWidth = 1;
+            
+            // Eje X
+            ctx.moveTo(0, centroY);
+            ctx.lineTo(canvas.width, centroY);
+            
+            // Eje Y
+            ctx.moveTo(centroX, 0);
+            ctx.lineTo(centroX, canvas.height);
+            
+            ctx.stroke();
+        }
+
+        function drawGraph() {
+            // 1. Limpiar el lienzo en cada fotograma
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Dibujar la cuadrícula/plano de fondo
+            dibujarPlano();
+
+            // 3. Configurar el estilo "Pro" para el Coseno
+            ctx.beginPath();
+            ctx.strokeStyle = '#00ff87'; // Verde Neón
+            ctx.lineWidth = 3;
+            
+            // Efecto de brillo (Glow)
+            ctx.shadowColor = '#00ff87';
+            ctx.shadowBlur = 12;
+
+            // 4. Calcular y dibujar los puntos de la curva
+            for (let x = 0; x < canvas.width; x += step) {
+                // Ajustamos la x matemática para que el origen (0,0) esté en el centro
+                let mathX = x - centroX;
+                
+                // Función Coseno: y = cos(x)
+                // Multiplicamos mathX * 0.02 para estirar la onda visualmente
+                // Sumamos 'time' para que la curva avance dinámicamente
+                let y = Math.cos(mathX * 0.02 + time);
+
+                // Multiplicamos 'y' * 100 para darle altura (amplitud) a la onda
+                if (x === 0) {
+                    ctx.moveTo(x, centroY - y * 100);
+                } else {
+                    ctx.lineTo(x, centroY - y * 100);
+                }
+            }
+
+            ctx.stroke();
+            
+            // Resetear sombra por precaución
+            ctx.shadowBlur = 0;
+        }
+
+        function animate() {
+            drawGraph();
+            // Aumentar el tiempo hace que la x matemática "avance" progresivamente
+            time += 0.05; 
+            // requestAnimationFrame crea un bucle suave a la máxima velocidad de tu pantalla
+            requestAnimationFrame(animate); 
+        }
+
+        // Iniciar la magia
+        animate();
+    </script>
+
+</body>
+</html>

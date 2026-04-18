@@ -42,19 +42,16 @@
         // --- FIN DIBUJAR PLANO CARTESIANO ---
 
 
-        // --- INICIO ONDA SINUSOIDAL ---
+        // --- INICIO ONDA SINUSOIDAL (Seno - Azul) ---
         ctx.beginPath();
         ctx.strokeStyle = 'blue'; 
         ctx.lineWidth = 2; 
         
         for (var x = xstart; x < xend; x += step) {
-            // Ajuste matemático: Le restamos 'centroX' a 'x' para que 
-            // el valor 0 de la fórmula caiga exactamente en el eje Y.
             var mathX = x - centroX; 
             var y = Math.sin(mathX * 0.01 + time); 
 
             if (x === xstart) {
-                // Usamos 'centroY' para mantener el código más limpio
                 ctx.moveTo(x, centroY - y * 100); 
             } 
             else {
@@ -63,6 +60,27 @@
         }
         ctx.stroke(); 
         // --- FIN ONDA SINUSOIDAL ---
+
+
+        // --- INICIO ONDA COSENODAL (Coseno - Verde) ---
+        ctx.beginPath();
+        ctx.strokeStyle = 'green'; // Cambiamos el color a verde
+        ctx.lineWidth = 2; 
+        
+        for (var x = xstart; x < xend; x += step) {
+            var mathX = x - centroX; 
+            // Utilizamos Math.cos() para la nueva onda
+            var y = Math.cos(mathX * 0.01 + time); 
+
+            if (x === xstart) {
+                ctx.moveTo(x, centroY - y * 100); 
+            } 
+            else {
+                ctx.lineTo(x, centroY - y * 100); 
+            }
+        }
+        ctx.stroke(); 
+        // --- FIN ONDA COSENODAL ---
     }
 
     function animate() {

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linea dinamica</title>
+</head>
+<body>
+    <h2>Línea Dinámica</h2>
+    <canvas id="myCanvas" width="800" height="400" style="border: 1px solid black;"></canvas>
+<!-- CODIGO JAVASCRIP -->
+
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    // variables necesarias para el graficos
+
+var xstart = 0; // punto de inicio en el eje x
+var xend = 800; // punto de fin en el eje y
+var step  = 0.1; // paso para el incremento de x
+var time=0; // variable para animar el grafico 
+
+// funcion para dibujar el grafico
+function drawGraph() {
+    //limpiar el lienzo antes de dibujar el nuevo gráfico
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // limpiar el canvas
+// configurar el estilo de la línea
+ctx.beginPath();
+ctx.strokeStyle= 'blue'; // color de la línea
+ctx.lineWidth = 2; // grosor de la línea
+//dibuja la funcion  Y = sin(x)
+for (var x = xstart; x < xend; x += step) {
+    var y = Math.sin(x*0.01+time); // función para crear una onda sinusoidal con el tiempo para animar
+
+    if (x === xstart) {
+        ctx.moveTo(x,canvas.height/2 -y*100); // posiciona el el punto de inicio en el eje x y el centro del canvas en el eje y
+    } 
+    
+    else {
+        ctx.lineTo(x,canvas.height/2-y*100); // dibujar la línea
+        }
+}
+        // dibuja la línea en el canvas
+ctx.stroke(); // dibujar la línea
+}
+
+// función para animar el gráfico
+function animate() {
+    drawGraph(); // dibujar el gráfico inicial   
+    time += 0.08; // incrementar el tiempo para animar la onda
+    requestAnimationFrame(animate); // llama a la funcion de animación
+}
+
+//inicia la animación
+animate(); // iniciar la animación
+</script>  
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio | Computación Gráfica</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- VARIABLES DE COLOR --- */
+        :root {
+            --primario: #0f2027; 
+            --secundario: #203a43; 
+            --terciario: #2c5364; 
+            --acento: #00ff87; 
+            --fondo: #f4f7f6;
+            --texto: #333;
+            --texto-claro: #666;
+            --blanco: #ffffff;
+        }
+
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--fondo);
+            margin: 0;
+            padding: 0;
+            color: var(--texto);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- CABECERA (HEADER) --- */
+        header {
+            background: linear-gradient(135deg, var(--primario) 0%, var(--secundario) 50%, var(--terciario) 100%);
+            color: var(--blanco);
+            padding: 5rem 2rem 6rem 2rem; 
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitulo {
+            font-size: 1.2rem;
+            opacity: 0.85;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+
+        .badge-ciclo {
+            display: inline-block;
+            background-color: var(--acento);
+            color: var(--primario);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 15px;
+            box-shadow: 0 2px 10px rgba(0, 255, 135, 0.3);
+        }
+
+        /* --- CONTENEDOR PRINCIPAL (MAIN) --- */
+        .contenedor {
+            max-width: 1100px;
+            margin: -4rem auto 3rem auto; 
+            padding: 0 20px;
+            flex-grow: 1;
+            width: 100%;
+            box-sizing: border-box;
+            animation: fadeInUp 0.8s ease-out 0.2s both; 
+        }
+
+        /* --- GRID (CUADRÍCULA DE CARPETAS) --- */
+        .grid-carpetas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            align-items: start; /* Para que las tarjetas no se estiren si una tiene más enlaces */
+        }
+
+        /* --- TARJETAS CONTENEDORAS --- */
+        /* Ahora son <div> en lugar de <a> porque contienen múltiples enlaces */
+        .tarjeta {
+            background: var(--blanco);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid var(--terciario);
+            position: relative;
+        }
+
+        .tarjeta:hover {
+            transform: translateY(-8px); /* Efecto un poco más suave al no ser un enlace global */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-top-color: var(--acento);
+        }
+
+        .tarjeta-header {
+            padding: 25px 25px 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .icono-carpeta {
+            font-size: 2.5rem;
+            transition: transform 0.3s;
+        }
+
+        .tarjeta:hover .icono-carpeta {
+            transform: scale(1.1) rotate(5deg); /* Pequeño guiño interactivo */
+        }
+
+        .tarjeta-titulo {
+            margin: 0;
+            font-size: 1.6rem;
+            color: var(--primario);
+            font-weight: 700;
+        }
+
+        .tarjeta-body {
+            padding: 0 25px 30px 25px;
+            flex-grow: 1;
+        }
+
+        /* --- LISTA DE ENLACES INTERNOS --- */
+        .lista-ejercicios {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .enlace-ejercicio {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: var(--fondo);
+            border-radius: 8px;
+            color: var(--secundario);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .enlace-ejercicio::before {
+            content: "📄"; /* Icono de archivo */
+            margin-right: 12px;
+            font-size: 1.1rem;
+            filter: grayscale(100%); /* Gris por defecto */
+            transition: filter 0.3s;
+        }
+
+        .enlace-ejercicio:hover {
+            background-color: #e5f6f2; /* Tono menta muy claro */
+            border-left-color: var(--acento);
+            color: var(--primario);
+            transform: translateX(5px); /* Se mueve a la derecha */
+        }
+
+        .enlace-ejercicio:hover::before {
+            filter: grayscale(0%); /* Toma color al pasar el mouse */
+        }
+
+        /* --- PIE DE PÁGINA (FOOTER) --- */
+        footer {
+            background-color: var(--primario);
+            color: var(--blanco);
+            text-align: center;
+            padding: 2.5rem 1rem;
+            margin-top: auto;
+        }
+
+        footer p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer-nombre {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--blanco);
+            margin-bottom: 8px !important;
+        }
+
+        .footer-uni {
+            font-size: 0.9rem;
+        }
+
+        .footer-uni span {
+            color: var(--acento);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Computación Gráfica</h1>
+        <p class="subtitulo">Portafolio de Ejercicios y Actividades Prácticas</p>
+        <div class="badge-ciclo">Noveno Ciclo</div>
+    </header>
+
+    <main class="contenedor">
+        
+        <div class="grid-carpetas">
+            
+            <div class="tarjeta">
+                <div class="tarjeta-header">
+                    <h2 class="tarjeta-titulo">Clase 1</h2>
+                    <span class="icono-carpeta">📊</span>
+                </div>
+                <div class="tarjeta-body">
+                    <ul class="lista-ejercicios">
+                        <li><a href="Ejercicios/Clase 1/barras.html" class="enlace-ejercicio">barras.html</a></li>
+                        <li><a href="Ejercicios/Clase 1/circulo.html" class="enlace-ejercicio">circulo.html</a></li>
+                        <li><a href="Ejercicios/Clase 1/cuadrado.html" class="enlace-ejercicio">cuadrado.html</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tarjeta">
+                <div class="tarjeta-header">
+                    <h2 class="tarjeta-titulo">Clase 2</h2>
+                    <span class="icono-carpeta">✨</span>
+                </div>
+                <div class="tarjeta-body">
+                    <ul class="lista-ejercicios">
+                        <li><a href="Ejercicios/Clase 2/figura2d.html" class="enlace-ejercicio">figura2d.html</a></li>
+                        <li><a href="Ejercicios/Clase 2/figura2d - derecha.html" class="enlace-ejercicio">figura2d - derecha.html</a></li>
+                        <li><a href="Ejercicios/Clase 2/figura2d - izquierda.html" class="enlace-ejercicio">figura2d - izquierda.html</a></li>
+                        <li><a href="Ejercicios/Clase 2/lineadinamica.html" class="enlace-ejercicio">lineadinamica.html</a></li>
+                        <li><a href="Ejercicios/Clase 2/lineadinamica 2.html" class="enlace-ejercicio">lineadinamica 2.html</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tarjeta">
+                <div class="tarjeta-header">
+                    <h2 class="tarjeta-titulo">Actividad 4</h2>
+                    <span class="icono-carpeta">📈</span>
+                </div>
+                <div class="tarjeta-body">
+                    <ul class="lista-ejercicios">
+                        <li><a href="Ejercicios/Actividad 4/Ejercicio 1.html" class="enlace-ejercicio">Ejercicio 1.html</a></li>
+                        <li><a href="Ejercicios/Actividad 4/Ejercicio 2.html" class="enlace-ejercicio">Ejercicio 2.html</a></li>
+                        <li><a href="Ejercicios/Actividad 4/Ejercicio 3.html" class="enlace-ejercicio">Ejercicio 3.html</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <p class="footer-nombre">Desarrollado por Sebastian Altamirano Ochoa</p>
+        <p class="footer-uni">Universidad Tecnológica de los Andes <span>(UTEA)</span> - Ingeniería de Sistemas</p>
+    </footer>
+
+</body>
+</html>

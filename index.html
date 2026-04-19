@@ -4,232 +4,397 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portafolio | Computación Gráfica</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
-        /* --- VARIABLES DE COLOR --- */
         :root {
-            --primario: #0f2027; 
-            --secundario: #203a43; 
-            --terciario: #2c5364; 
-            --acento: #00ff87; 
-            --fondo: #f4f7f6;
-            --texto: #333;
-            --texto-claro: #666;
-            --blanco: #ffffff;
+            --acento:     #00e5a0;
+            --base:       #07111a;
+            --card-bg:    rgba(10,22,32,0.82);
+            --card-border:rgba(255,255,255,0.11);
+            --texto-dim:  rgba(255,255,255,0.45);
         }
-
-        /* --- ESTILOS GENERALES Y ANIMACIONES (Se mantienen igual) --- */
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--fondo);
-            margin: 0;
-            padding: 0;
-            color: var(--texto);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family:'Space Grotesk',sans-serif;
+            background:var(--base);
+            color:#fff;
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            overflow-x:hidden;
         }
 
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* VIDEO */
+        .video-zona {
+            position:fixed; inset:0;
+            z-index:0; overflow:hidden;
+        }
+        .video-slide { position:absolute; inset:0; display:none; }
+        .video-slide.active { display:block; }
+        .video-slide video { width:100%; height:100%; object-fit:cover; }
+        .overlay { position:absolute; inset:0; background:rgba(7,17,26,.10); z-index:1; pointer-events:none; }
+        .fade-top {
+            position:absolute; top:0; left:0; right:0; height:280px; z-index:2; pointer-events:none;
+            background:linear-gradient(to bottom, var(--base) 30%, transparent);
+        }
+        .fade-bottom {
+            position:absolute; bottom:0; left:0; right:0; height:280px; z-index:2; pointer-events:none;
+            background:linear-gradient(to top, var(--base) 30%, transparent);
+        }
 
-        /* --- CABECERA --- */
+        /* HEADER */
         header {
-            background: linear-gradient(135deg, var(--primario) 0%, var(--secundario) 50%, var(--terciario) 100%);
-            color: var(--blanco);
-            padding: 5rem 2rem 6rem 2rem; 
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            animation: fadeInDown 0.8s ease-out;
+            position:relative; z-index:10;
+            background:var(--base);
+            border-bottom:1px solid rgba(255,255,255,.06);
+            text-align:center;
+            padding:3rem 2rem 0;
+        }
+        .eyebrow-row {
+            display:flex; align-items:center; justify-content:center;
+            gap:14px; margin-bottom:1.1rem;
+        }
+        .h-line { height:1px; width:52px; }
+        .h-line.l { background:linear-gradient(to right, transparent, rgba(0,229,160,.5)); }
+        .h-line.r { background:linear-gradient(to left,  transparent, rgba(0,229,160,.5)); }
+        .eyebrow {
+            font-family:'DM Mono',monospace;
+            font-size:.68rem; letter-spacing:.22em;
+            text-transform:uppercase; color:var(--acento);
+        }
+        header h1 {
+            font-size:clamp(2.2rem,5.5vw,3.6rem);
+            font-weight:700; letter-spacing:-.03em; line-height:1.05;
+        }
+        .subtitulo { font-size:.9rem; color:var(--texto-dim); margin-top:.5rem; }
+        .badges {
+            display:flex; align-items:center; justify-content:center;
+            gap:10px; margin-top:1.3rem; flex-wrap:wrap;
+        }
+        .badge {
+            display:inline-flex; align-items:center; gap:7px;
+            padding:5px 16px; border-radius:100px;
+            font-family:'DM Mono',monospace; font-size:.73rem; letter-spacing:.1em;
+        }
+        .badge-green {
+            background:rgba(0,229,160,.08); border:1px solid rgba(0,229,160,.3); color:var(--acento);
+        }
+        .badge-blue {
+            background:rgba(0,184,255,.07); border:1px solid rgba(0,184,255,.22); color:rgba(0,184,255,.82);
+        }
+        .dot-live {
+            width:6px; height:6px; border-radius:50%;
+            background:var(--acento); box-shadow:0 0 7px var(--acento);
+            animation:blink 2s infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+        .h-sep {
+            display:flex; align-items:center; justify-content:center;
+            padding:0 2rem; margin-top:2.4rem;
+        }
+        .h-sep-line {
+            flex:1; height:1px; max-width:400px;
+            background:linear-gradient(to right,transparent,rgba(255,255,255,.07),transparent);
+        }
+        .h-sep-diamond {
+            width:5px; height:5px; margin:0 14px;
+            border:1px solid rgba(0,229,160,.4); transform:rotate(45deg);
+            background:rgba(0,229,160,.1);
         }
 
-        header h1 { margin: 0; font-size: 3rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .subtitulo { font-size: 1.2rem; opacity: 0.85; margin-top: 10px; font-weight: 300; }
-        .badge-ciclo { display: inline-block; background-color: var(--acento); color: var(--primario); padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; margin-top: 15px; box-shadow: 0 2px 10px rgba(0, 255, 135, 0.3); }
+        /* CARDS */
+        .zona-video { position:relative; z-index:10; flex-grow:1; }
+        .contenedor { max-width:1100px; margin:0 auto; padding:3rem 24px 5rem; width:100%; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; align-items:start; }
 
-        /* --- CONTENEDOR PRINCIPAL Y TARJETAS --- */
-        .contenedor { max-width: 1100px; margin: -4rem auto 3rem auto; padding: 0 20px; flex-grow: 1; width: 100%; box-sizing: border-box; animation: fadeInUp 0.8s ease-out 0.2s both; }
-        .grid-carpetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem; align-items: start; }
-        .tarjeta { background: var(--blanco); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: all 0.4s ease; display: flex; flex-direction: column; border-top: 4px solid var(--terciario); position: relative; }
-        .tarjeta:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); border-top-color: var(--acento); }
-        .tarjeta-header { padding: 25px 25px 15px 25px; display: flex; align-items: center; justify-content: space-between; }
-        .icono-carpeta { font-size: 2.5rem; transition: transform 0.3s; }
-        .tarjeta:hover .icono-carpeta { transform: scale(1.1) rotate(5deg); }
-        .tarjeta-titulo { margin: 0; font-size: 1.6rem; color: var(--primario); font-weight: 700; }
-        .tarjeta-body { padding: 0 25px 30px 25px; flex-grow: 1; }
-
-        /* --- LISTA DE ENLACES --- */
-        .lista-ejercicios { list-style: none; padding: 0; margin: 15px 0 0 0; display: flex; flex-direction: column; gap: 10px; }
-        .enlace-ejercicio { display: flex; align-items: center; padding: 12px 15px; background-color: var(--fondo); border-radius: 8px; color: var(--secundario); text-decoration: none; font-weight: 600; font-size: 0.95rem; border-left: 4px solid transparent; transition: all 0.3s ease; cursor: pointer; }
-        .enlace-ejercicio::before { content: "📄"; margin-right: 12px; font-size: 1.1rem; filter: grayscale(100%); transition: filter 0.3s; }
-        .enlace-ejercicio:hover { background-color: #e5f6f2; border-left-color: var(--acento); color: var(--primario); transform: translateX(5px); }
-        .enlace-ejercicio:hover::before { filter: grayscale(0%); }
-
-        footer { background-color: var(--primario); color: var(--blanco); text-align: center; padding: 2.5rem 1rem; margin-top: auto; }
-        footer p { margin: 0; color: rgba(255, 255, 255, 0.7); }
-        .footer-nombre { font-size: 1.1rem; font-weight: 600; color: var(--blanco); margin-bottom: 8px !important; }
-        .footer-uni { font-size: 0.9rem; }
-        .footer-uni span { color: var(--acento); font-weight: 600; }
-
-        /* =========================================
-           NUEVO: ESTILOS DEL VISOR (MODAL IFRAME) 
-           ========================================= */
-        #visor-ejercicios {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--fondo);
-            z-index: 9999; /* Para que quede encima de TODO */
-            display: none; /* Oculto por defecto */
-            flex-direction: column;
+        .tarjeta {
+            background:var(--card-bg);
+            border:1px solid var(--card-border);
+            border-radius:14px; overflow:hidden;
+            backdrop-filter:blur(14px);
+            display:flex; flex-direction:column; position:relative;
+            transition:border-color .3s, box-shadow .3s, transform .3s;
+            animation:fadeUp .55s ease both;
         }
-
-        /* La barra superior del visor donde va el botón */
-        .visor-header {
-            background-color: var(--primario);
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        .tarjeta::before {
+            content:''; position:absolute;
+            top:0; left:15%; right:15%; height:1px;
+            background:linear-gradient(to right,transparent,rgba(255,255,255,.18),transparent);
         }
-
-        .btn-cerrar-visor {
-            background-color: transparent;
-            color: var(--blanco);
-            border: 2px solid var(--terciario);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .tarjeta:nth-child(1){animation-delay:.1s}
+        .tarjeta:nth-child(2){animation-delay:.18s}
+        .tarjeta:nth-child(3){animation-delay:.26s}
+        .tarjeta:hover {
+            border-color:rgba(0,229,160,.45);
+            box-shadow:0 0 30px rgba(0,229,160,.1), 0 20px 48px rgba(0,0,0,.45);
+            transform:translateY(-5px);
         }
-
-        .btn-cerrar-visor:hover {
-            background-color: var(--terciario);
-            color: var(--acento);
-            border-color: var(--acento);
-            transform: translateX(-5px);
+        .t-head {
+            padding:20px 22px 14px;
+            display:flex; align-items:flex-start; justify-content:space-between;
+            border-bottom:1px solid rgba(255,255,255,.07);
         }
+        .t-meta { display:flex; flex-direction:column; gap:3px; }
+        .t-label {
+            font-family:'DM Mono',monospace; font-size:.6rem;
+            letter-spacing:.2em; text-transform:uppercase;
+            color:var(--acento); opacity:.7;
+        }
+        .t-titulo { font-size:1.25rem; font-weight:600; letter-spacing:-.01em; }
+        .t-icon { font-size:1.6rem; opacity:.6; margin-top:2px; transition:opacity .3s,transform .3s; }
+        .tarjeta:hover .t-icon { opacity:1; transform:scale(1.1) rotate(-5deg); }
 
-        /* El espacio donde se cargará tu HTML externo */
-        #iframe-ejercicio {
-            flex-grow: 1; /* Ocupa todo el resto de la pantalla */
-            border: none;
-            width: 100%;
-            background-color: white;
+        .t-body { padding:14px 22px 22px; flex-grow:1; }
+        .lista { list-style:none; display:flex; flex-direction:column; gap:4px; }
+        .enlace {
+            display:flex; align-items:center; gap:10px;
+            padding:9px 12px; border-radius:8px;
+            color:rgba(255,255,255,.58); text-decoration:none;
+            font-size:.875rem; font-weight:500;
+            border:1px solid transparent;
+            transition:all .22s ease; cursor:pointer;
+        }
+        .enlace::before {
+            content:''; width:4px; height:4px; border-radius:50%;
+            background:rgba(255,255,255,.2); flex-shrink:0;
+            transition:background .22s, box-shadow .22s;
+        }
+        .enlace:hover {
+            background:rgba(0,229,160,.07);
+            border-color:rgba(0,229,160,.18);
+            color:#fff; padding-left:17px;
+        }
+        .enlace:hover::before { background:var(--acento); box-shadow:0 0 7px rgba(0,229,160,.4); }
+
+        /* FOOTER */
+        footer {
+            position:relative; z-index:10;
+            background:var(--base);
+            border-top:1px solid rgba(255,255,255,.06);
+        }
+        .f-inner { padding:2.2rem 2rem 2.5rem; max-width:960px; margin:0 auto; }
+        .f-sep {
+            display:flex; align-items:center; justify-content:center; margin-bottom:1.8rem;
+        }
+        .f-sep-line {
+            flex:1; height:1px; max-width:380px;
+            background:linear-gradient(to right,transparent,rgba(255,255,255,.07),transparent);
+        }
+        .f-sep-icon { font-size:.5rem; color:rgba(0,229,160,.35); margin:0 14px; }
+        .f-content {
+            display:flex; align-items:center; justify-content:space-between;
+            flex-wrap:wrap; gap:1.4rem;
+        }
+        .f-left { display:flex; flex-direction:column; gap:4px; }
+        .f-cargo {
+            font-family:'DM Mono',monospace; font-size:.64rem;
+            letter-spacing:.14em; color:var(--acento); opacity:.6; text-transform:uppercase;
+        }
+        .f-nombre { font-size:.97rem; font-weight:600; color:rgba(255,255,255,.8); }
+        .f-center { display:flex; flex-direction:column; align-items:center; gap:3px; }
+        .f-logo { font-size:1.3rem; font-weight:700; letter-spacing:.05em; }
+        .f-sub { font-size:.7rem; color:var(--texto-dim); text-align:center; }
+        .f-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+        .f-badge {
+            display:inline-flex; align-items:center;
+            background:rgba(0,229,160,.07); border:1px solid rgba(0,229,160,.18);
+            color:rgba(0,229,160,.72); padding:4px 13px; border-radius:100px;
+            font-size:.67rem; font-family:'DM Mono',monospace; letter-spacing:.08em;
+        }
+        .f-copy { font-size:.67rem; color:rgba(255,255,255,.17); font-family:'DM Mono',monospace; }
+
+        /* MODAL */
+        #visor {
+            position:fixed; inset:0;
+            background:rgba(7,17,26,.98);
+            z-index:9999; display:none; flex-direction:column;
+        }
+        .v-head {
+            background:var(--base); padding:13px 22px;
+            display:flex; align-items:center;
+            border-bottom:1px solid rgba(255,255,255,.07);
+        }
+        .btn-close {
+            background:transparent; color:rgba(255,255,255,.5);
+            border:1px solid rgba(255,255,255,.1);
+            padding:7px 17px; border-radius:7px;
+            font-family:'Space Grotesk',sans-serif; font-size:.875rem; font-weight:500;
+            cursor:pointer; transition:all .22s;
+        }
+        .btn-close:hover { border-color:var(--acento); color:var(--acento); background:rgba(0,229,160,.06); }
+        #visor-iframe { flex-grow:1; border:none; width:100%; background:#fff; }
+
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(18px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @media(max-width:600px){
+            .f-content { flex-direction:column; align-items:center; text-align:center; }
+            .f-right { align-items:center; }
         }
     </style>
 </head>
 <body>
 
+    <!-- VIDEO -->
+    <div class="video-zona">
+        <div class="overlay"></div>
+        <div class="video-slide active">
+            <video autoplay muted loop playsinline>
+                <source src="assets/dota2.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-slide">
+            <video muted loop playsinline>
+                <source src="assets/dotadragon.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="fade-top"></div>
+        <div class="fade-bottom"></div>
+    </div>
+
+    <!-- HEADER -->
     <header>
-        <h1>Computación Gráfica</h1>
-        <p class="subtitulo">Portafolio de Ejercicios y Actividades Prácticas</p>
-        <div class="badge-ciclo">Noveno Ciclo</div>
+        <div style="animation:fadeUp .6s ease both">
+            <div class="eyebrow-row">
+                <div class="h-line l"></div>
+                <span class="eyebrow">Ingeniería de Sistemas · UTEA</span>
+                <div class="h-line r"></div>
+            </div>
+            <h1>Computación Gráfica</h1>
+            <p class="subtitulo">Portafolio de Ejercicios y Actividades Prácticas</p>
+            <div class="badges">
+                <div class="badge badge-green"><span class="dot-live"></span>Noveno Ciclo</div>
+                <div class="badge badge-blue">2026 · II</div>
+            </div>
+        </div>
+        <div class="h-sep" style="margin-top:2.4rem">
+            <div class="h-sep-line"></div>
+            <div class="h-sep-diamond"></div>
+            <div class="h-sep-line" style="background:linear-gradient(to left,transparent,rgba(255,255,255,.07),transparent)"></div>
+        </div>
     </header>
 
-    <main class="contenedor">
-        <div class="grid-carpetas">
-            
-            <div class="tarjeta">
-                <div class="tarjeta-header">
-                    <h2 class="tarjeta-titulo">Clase 1</h2>
-                    <span class="icono-carpeta">📊</span>
+    <!-- TARJETAS -->
+    <div class="zona-video">
+        <main class="contenedor">
+            <div class="grid">
+
+                <div class="tarjeta">
+                    <div class="t-head">
+                        <div class="t-meta">
+                            <span class="t-label">Unidad 01</span>
+                            <h2 class="t-titulo">Clase 1</h2>
+                        </div>
+                        <span class="t-icon">📊</span>
+                    </div>
+                    <div class="t-body">
+                        <ul class="lista">
+                            <li><a href="Ejercicios/Clase 1/barras.html" class="enlace">barras.html</a></li>
+                            <li><a href="Ejercicios/Clase 1/circulo.html" class="enlace">circulo.html</a></li>
+                            <li><a href="Ejercicios/Clase 1/cuadrado.html" class="enlace">cuadrado.html</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="tarjeta-body">
-                    <ul class="lista-ejercicios">
-                        <li><a href="Ejercicios/Clase 1/barras.html" class="enlace-ejercicio">barras.html</a></li>
-                        <li><a href="Ejercicios/Clase 1/circulo.html" class="enlace-ejercicio">circulo.html</a></li>
-                        <li><a href="Ejercicios/Clase 1/cuadrado.html" class="enlace-ejercicio">cuadrado.html</a></li>
-                    </ul>
+
+                <div class="tarjeta">
+                    <div class="t-head">
+                        <div class="t-meta">
+                            <span class="t-label">Unidad 02</span>
+                            <h2 class="t-titulo">Clase 2</h2>
+                        </div>
+                        <span class="t-icon">✨</span>
+                    </div>
+                    <div class="t-body">
+                        <ul class="lista">
+                            <li><a href="Ejercicios/Clase 2/figura2d.html" class="enlace">figura2d.html</a></li>
+                            <li><a href="Ejercicios/Clase 2/figura2d - derecha.html" class="enlace">figura2d - derecha.html</a></li>
+                            <li><a href="Ejercicios/Clase 2/figura2d - izquierda.html" class="enlace">figura2d - izquierda.html</a></li>
+                            <li><a href="Ejercicios/Clase 2/lineadinamica.html" class="enlace">lineadinamica.html</a></li>
+                            <li><a href="Ejercicios/Clase 2/lineadinamica 2.html" class="enlace">lineadinamica 2.html</a></li>
+                        </ul>
+                    </div>
                 </div>
+
+                <div class="tarjeta">
+                    <div class="t-head">
+                        <div class="t-meta">
+                            <span class="t-label">Actividad</span>
+                            <h2 class="t-titulo">Actividad 4</h2>
+                        </div>
+                        <span class="t-icon">📈</span>
+                    </div>
+                    <div class="t-body">
+                        <ul class="lista">
+                            <li><a href="Ejercicios/Actividad 4/Ejercicio 1.html" class="enlace">Ejercicio 1.html</a></li>
+                            <li><a href="Ejercicios/Actividad 4/Ejercicio 2.html" class="enlace">Ejercicio 2.html</a></li>
+                            <li><a href="Ejercicios/Actividad 4/Ejercicio 3.html" class="enlace">Ejercicio 3.html</a></li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
+        </main>
+    </div>
 
-            <div class="tarjeta">
-                <div class="tarjeta-header">
-                    <h2 class="tarjeta-titulo">Clase 2</h2>
-                    <span class="icono-carpeta">✨</span>
-                </div>
-                <div class="tarjeta-body">
-                    <ul class="lista-ejercicios">
-                        <li><a href="Ejercicios/Clase 2/figura2d.html" class="enlace-ejercicio">figura2d.html</a></li>
-                        <li><a href="Ejercicios/Clase 2/figura2d - derecha.html" class="enlace-ejercicio">figura2d - derecha.html</a></li>
-                        <li><a href="Ejercicios/Clase 2/figura2d - izquierda.html" class="enlace-ejercicio">figura2d - izquierda.html</a></li>
-                        <li><a href="Ejercicios/Clase 2/lineadinamica.html" class="enlace-ejercicio">lineadinamica.html</a></li>
-                        <li><a href="Ejercicios/Clase 2/lineadinamica 2.html" class="enlace-ejercicio">lineadinamica 2.html</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="tarjeta">
-                <div class="tarjeta-header">
-                    <h2 class="tarjeta-titulo">Actividad 4</h2>
-                    <span class="icono-carpeta">📈</span>
-                </div>
-                <div class="tarjeta-body">
-                    <ul class="lista-ejercicios">
-                        <li><a href="Ejercicios/Actividad 4/Ejercicio 1.html" class="enlace-ejercicio">Ejercicio 1.html</a></li>
-                        <li><a href="Ejercicios/Actividad 4/Ejercicio 2.html" class="enlace-ejercicio">Ejercicio 2.html</a></li>
-                        <li><a href="Ejercicios/Actividad 4/Ejercicio 3.html" class="enlace-ejercicio">Ejercicio 3.html</a></li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
+    <!-- FOOTER -->
     <footer>
-        <p class="footer-nombre">Desarrollado por Sebastian Altamirano Ochoa</p>
-        <p class="footer-uni">Universidad Tecnológica de los Andes <span>(UTEA)</span> - Ingeniería de Sistemas</p>
+        <div class="f-inner">
+            <div class="f-sep">
+                <div class="f-sep-line"></div>
+                <span class="f-sep-icon">◆</span>
+                <div class="f-sep-line" style="background:linear-gradient(to left,transparent,rgba(255,255,255,.07),transparent)"></div>
+            </div>
+            <div class="f-content">
+                <div class="f-left">
+                    <span class="f-cargo">Desarrollado por</span>
+                    <span class="f-nombre">Sebastian Altamirano Ochoa</span>
+                </div>
+                <div class="f-center">
+                    <span class="f-logo">UTEA</span>
+                    <span class="f-sub">Universidad Tecnológica de los Andes</span>
+                </div>
+                <div class="f-right">
+                    <span class="f-badge">Ing. de Sistemas</span>
+                    <span class="f-copy">© 2026</span>
+                </div>
+            </div>
+        </div>
     </footer>
 
-    <div id="visor-ejercicios">
-        <div class="visor-header">
-            <button id="btn-cerrar-visor" class="btn-cerrar-visor">← Volver al Menú</button>
+    <!-- MODAL -->
+    <div id="visor">
+        <div class="v-head">
+            <button class="btn-close" id="btn-close">← Volver al portafolio</button>
         </div>
-        <iframe id="iframe-ejercicio" src=""></iframe>
+        <iframe id="visor-iframe" src=""></iframe>
     </div>
 
     <script>
-        // Obtenemos los elementos del visor
-        const visor = document.getElementById('visor-ejercicios');
-        const iframe = document.getElementById('iframe-ejercicio');
-        const btnCerrar = document.getElementById('btn-cerrar-visor');
-
-        // Seleccionamos todos los enlaces de los ejercicios
-        const enlaces = document.querySelectorAll('.enlace-ejercicio');
-
-        // Le damos una función a cada enlace
-        enlaces.forEach(enlace => {
-            enlace.addEventListener('click', function(evento) {
-                // Prevenimos que el navegador cambie de página
-                evento.preventDefault(); 
-                
-                // Obtenemos la ruta del archivo que el usuario quiere ver
-                const urlEjercicio = this.getAttribute('href');
-                
-                // Se lo pasamos al iframe para que lo cargue
-                iframe.src = urlEjercicio;
-                
-                // Mostramos la ventana flotante
+        // Modal
+        const visor  = document.getElementById('visor');
+        const iframe = document.getElementById('visor-iframe');
+        document.getElementById('btn-close').onclick = () => { visor.style.display='none'; iframe.src=''; };
+        document.querySelectorAll('.enlace').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                iframe.src = a.href;
                 visor.style.display = 'flex';
             });
         });
 
-        // Función para cerrar el visor
-        btnCerrar.addEventListener('click', function() {
-            visor.style.display = 'none'; // Ocultamos el visor
-            iframe.src = ''; // Limpiamos el iframe por si aca
-        });
+        // Video rotation — cada 5 s, sin animación
+        const slides = document.querySelectorAll('.video-slide');
+        const vids   = document.querySelectorAll('.video-slide video');
+        let cur = 0;
+        vids[0].play().catch(()=>{});
+        setInterval(() => {
+            slides[cur].classList.remove('active');
+            cur = (cur + 1) % slides.length;
+            slides[cur].classList.add('active');
+            vids[cur].play().catch(()=>{});
+        }, 5000);
     </script>
 
 </body>

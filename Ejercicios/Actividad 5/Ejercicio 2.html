@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 2 - Rotación 3D Premium</title>
+    <style>
+        /* Reset de estilos */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            overflow: hidden; 
+            background-color: #030303; /* Fondo extra oscuro */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Panel flotante estilo Glassmorphism */
+        .glass-panel {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 15, 15, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 16px;
+            padding: 20px 40px;
+            color: #ffffff;
+            text-align: center;
+            box-shadow: 0 4px 30px rgba(0, 255, 0, 0.05);
+            pointer-events: none;
+        }
+
+        .glass-panel h1 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #00ff00; /* Acento verde neón */
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .glass-panel p {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel">
+        <h1>Ejercicio 02</h1>
+        <p>Rotación tridimensional continua (Ejes X e Y)</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // 1. CREAR LA ESCENA
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030303, 0.08);
+
+        // 2. CREAR LA CÁMARA
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.5, 6); 
+        camera.lookAt(0, 0, 0);
+
+        // 3. RENDERIZADOR
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // 4. ILUMINACIÓN
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
+        
+        const greenLight = new THREE.PointLight(0x00ff00, 2, 10);
+        greenLight.position.set(0, 2, 2);
+        scene.add(greenLight);
+
+        // 5. ENTORNO: CUADRÍCULA
+        const gridHelper = new THREE.GridHelper(20, 20, 0x00ff00, 0x222222);
+        gridHelper.position.y = -1.5; // Bajamos más la cuadrícula para centrar el cubo
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.4;
+        scene.add(gridHelper);
+
+        // 6. CREAR EL OBJETO (Cubo de Cristal Premium)
+        // Lo hacemos un poco más grande (1.5) para que se vea mejor la rotación
+        const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        
+        // Material semitransparente oscuro
+        const material = new THREE.MeshPhysicalMaterial({ 
+            color: 0x050505,
+            metalness: 0.9,
+            roughness: 0.1,
+            transparent: true,
+            opacity: 0.7, // Permite ver a través del cubo
+            side: THREE.DoubleSide // Renderiza también las caras internas
+        });
+        const cubo = new THREE.Mesh(geometry, material);
+
+        // Bordes verde neón
+        const edgesGeometry = new THREE.EdgesGeometry(geometry);
+        const edgesMaterial = new THREE.LineBasicMaterial({ 
+            color: 0x00ff00, 
+            linewidth: 2 
+        });
+        const cubeEdges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+        cubo.add(cubeEdges); 
+        
+        scene.add(cubo);
+
+        // 7. FUNCIÓN DE ANIMACIÓN (ROTACIÓN)
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Aplicar rotación continua en ejes X e Y
+            // Usamos velocidades ligeramente distintas para que el giro no sea monótono
+            cubo.rotation.x += 0.01;
+            cubo.rotation.y += 0.015;
+            
+            // Dibujar la escena
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+
+        // 8. RESPONSIVIDAD
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

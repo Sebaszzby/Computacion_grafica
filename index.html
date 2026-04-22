@@ -11,12 +11,14 @@
 
     <style>
         :root {
-            --acento:     #00e5a0;
-            --acento2:    #00b8ff;
-            --base:       #07111a;
-            --card-bg:    rgba(10,22,32,0.82);
-            --card-border:rgba(255,255,255,0.11);
-            --texto-dim:  rgba(255,255,255,0.45);
+            --acento:      #00e5a0;
+            --acento2:     #00b8ff;
+            --base:        #0a1520;
+            --surface:     #0e1e2d;
+            --card-bg:     rgba(18, 35, 52, 0.75);
+            --card-border: rgba(255,255,255,0.09);
+            --texto-dim:   rgba(255,255,255,0.42);
+            --texto-mid:   rgba(255,255,255,0.65);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -34,148 +36,45 @@
         ══════════════════════════ */
         #preloader {
             position:fixed; inset:0;
-            background: #060f17;
+            background:#08121c;
             z-index:99999;
             display:flex;
-            flex-direction:column;
             align-items:center;
             justify-content:center;
-            gap:0;
             transition:opacity .9s ease, visibility .9s ease;
         }
         #preloader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
-
-        /* Terminal */
         .terminal {
-            width: min(560px, 90vw);
-            background: #08131d;
-            border: 1px solid rgba(0,229,160,.15);
-            border-radius: 14px;
-            overflow: hidden;
-            box-shadow:
-                0 0 0 1px rgba(0,229,160,.05),
-                0 0 80px rgba(0,229,160,.06),
-                0 40px 100px rgba(0,0,0,.7);
-            animation: termIn .7s cubic-bezier(.22,1,.36,1) both;
+            width:min(560px, 90vw);
+            background:#0b1825;
+            border:1px solid rgba(0,229,160,.14);
+            border-radius:14px;
+            overflow:hidden;
+            box-shadow:0 0 0 1px rgba(0,229,160,.04), 0 0 80px rgba(0,229,160,.05), 0 40px 100px rgba(0,0,0,.65);
+            animation:termIn .7s cubic-bezier(.22,1,.36,1) both;
         }
-        @keyframes termIn {
-            from { opacity:0; transform:translateY(28px) scale(.96); }
-            to   { opacity:1; transform:translateY(0) scale(1); }
-        }
-
-        /* Barra superior */
-        .term-bar {
-            background: #061018;
-            padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid rgba(255,255,255,.05);
-        }
+        @keyframes termIn { from{opacity:0;transform:translateY(26px) scale(.96)} to{opacity:1;transform:none} }
+        .term-bar { background:#081220; padding:12px 18px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,.05); }
         .term-dots { display:flex; gap:7px; }
         .term-dot  { width:12px; height:12px; border-radius:50%; }
-        .term-dot.red    { background:#ff5f57; }
-        .term-dot.yellow { background:#febc2e; }
-        .term-dot.green  { background:#28c840; }
-        .term-path {
-            font-family:'DM Mono',monospace;
-            font-size:.65rem;
-            color:rgba(255,255,255,.22);
-            letter-spacing:.06em;
-            margin-left:6px;
-        }
+        .term-dot.red{background:#ff5f57} .term-dot.yellow{background:#febc2e} .term-dot.green{background:#28c840}
+        .term-path { font-family:'DM Mono',monospace; font-size:.65rem; color:rgba(255,255,255,.2); letter-spacing:.06em; margin-left:6px; }
         .term-path em { color:rgba(0,229,160,.5); font-style:normal; }
-
-        /* Cuerpo de código */
-        .term-body {
-            padding: 18px 22px 16px;
-            font-family: 'DM Mono', monospace;
-            font-size: clamp(.72rem, 1.9vw, .84rem);
-            line-height: 2;
-            min-height: 200px;
-            max-height: 260px;
-            overflow: hidden;
-        }
-
-        .code-line {
-            display: flex;
-            align-items: baseline;
-            gap: 16px;
-            opacity: 0;
-            transform: translateY(4px);
-            transition: opacity .3s ease, transform .3s ease;
-        }
-        .code-line.show { opacity:1; transform:translateY(0); }
-
-        .ln {
-            color: rgba(255,255,255,.15);
-            min-width: 16px;
-            text-align: right;
-            flex-shrink: 0;
-            font-size:.7em;
-            user-select:none;
-        }
-        .code-text { white-space: pre; }
-
-        /* Colores sintaxis — paleta más cálida y legible */
-        .ck  { color: #7eb8e8; }   /* keyword   — azul suave */
-        .cl  { color: #00e5a0; }   /* library   — verde acento */
-        .cf  { color: #e8c87e; }   /* function  — dorado suave */
-        .cs  { color: #e89a7e; }   /* string    — salmón */
-        .cn  { color: #a8d4a0; }   /* number    — verde pálido */
-        .cv  { color: #a8c8e8; }   /* variable  — azul claro */
-        .cc  { color: #3d6050; font-style:italic; }  /* comment — verde musgo */
-        .co  { color: rgba(255,255,255,.4); }         /* operator */
-        .cd  { color: rgba(255,255,255,.12); }        /* dim */
-
-        /* Cursor */
-        .cursor {
-            display:inline-block;
-            width:7px; height:.85em;
-            background: var(--acento);
-            vertical-align:text-bottom;
-            border-radius:1px;
-            animation: blink-cur .9s step-end infinite;
-            margin-left:2px;
-            box-shadow:0 0 8px rgba(0,229,160,.6);
-        }
-        @keyframes blink-cur { 0%,100%{opacity:1} 50%{opacity:0} }
-
-        /* Footer de progreso */
-        .term-footer {
-            border-top: 1px solid rgba(255,255,255,.05);
-            padding: 11px 22px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: #061018;
-        }
-        .prog-status {
-            font-family:'DM Mono',monospace;
-            font-size:.62rem;
-            color:rgba(0,229,160,.6);
-            min-width:150px;
-            letter-spacing:.03em;
-        }
-        .prog-track {
-            flex:1; height:2px;
-            background:rgba(255,255,255,.06);
-            border-radius:2px; overflow:hidden;
-        }
-        .prog-fill {
-            height:100%; width:0%;
-            background:linear-gradient(to right, var(--acento), var(--acento2));
-            border-radius:2px;
-            box-shadow:0 0 10px rgba(0,229,160,.45);
-            transition:width .6s cubic-bezier(.4,0,.2,1);
-        }
-        .prog-num {
-            font-family:'DM Mono',monospace;
-            font-size:.62rem;
-            color:rgba(255,255,255,.2);
-            min-width:30px;
-            text-align:right;
-        }
+        .term-body { padding:18px 22px 16px; font-family:'DM Mono',monospace; font-size:clamp(.72rem,1.9vw,.84rem); line-height:2; min-height:200px; max-height:260px; overflow:hidden; }
+        .code-line { display:flex; align-items:baseline; gap:16px; opacity:0; transform:translateY(4px); transition:opacity .3s ease,transform .3s ease; }
+        .code-line.show { opacity:1; transform:none; }
+        .ln { color:rgba(255,255,255,.14); min-width:16px; text-align:right; flex-shrink:0; font-size:.7em; user-select:none; }
+        .code-text { white-space:pre; }
+        .ck{color:#7eb8e8} .cl{color:#00e5a0} .cf{color:#e8c87e} .cs{color:#e89a7e}
+        .cn{color:#a8d4a0} .cv{color:#a8c8e8} .cc{color:#3d6050;font-style:italic}
+        .co{color:rgba(255,255,255,.38)} .cd{color:rgba(255,255,255,.1)}
+        .cursor { display:inline-block; width:7px; height:.85em; background:var(--acento); vertical-align:text-bottom; border-radius:1px; animation:blink-cur .9s step-end infinite; margin-left:2px; box-shadow:0 0 8px rgba(0,229,160,.55); }
+        @keyframes blink-cur{0%,100%{opacity:1}50%{opacity:0}}
+        .term-footer { border-top:1px solid rgba(255,255,255,.05); padding:11px 22px; display:flex; align-items:center; gap:14px; background:#081220; }
+        .prog-status { font-family:'DM Mono',monospace; font-size:.62rem; color:rgba(0,229,160,.6); min-width:150px; letter-spacing:.03em; }
+        .prog-track { flex:1; height:2px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; }
+        .prog-fill { height:100%; width:0%; background:linear-gradient(to right,var(--acento),var(--acento2)); border-radius:2px; box-shadow:0 0 10px rgba(0,229,160,.4); transition:width .6s cubic-bezier(.4,0,.2,1); }
+        .prog-num { font-family:'DM Mono',monospace; font-size:.62rem; color:rgba(255,255,255,.2); min-width:30px; text-align:right; }
 
         /* ══════════════════════════
            VIDEO
@@ -184,89 +83,159 @@
         .video-slide { position:absolute; inset:0; display:none; }
         .video-slide.active { display:block; }
         .video-slide video { width:100%; height:100%; object-fit:cover; }
-        .overlay { position:absolute; inset:0; background:rgba(7,17,26,.10); z-index:1; pointer-events:none; }
-        .fade-top  { position:absolute; top:0; left:0; right:0; height:280px; z-index:2; pointer-events:none; background:linear-gradient(to bottom, var(--base) 30%, transparent); }
-        .fade-bot  { position:absolute; bottom:0; left:0; right:0; height:280px; z-index:2; pointer-events:none; background:linear-gradient(to top, var(--base) 30%, transparent); }
+        .overlay { position:absolute; inset:0; background:rgba(10,21,32,.12); z-index:1; pointer-events:none; }
+        .fade-top { position:absolute; top:0; left:0; right:0; height:300px; z-index:2; pointer-events:none; background:linear-gradient(to bottom,var(--base) 28%,transparent); }
+        .fade-bot { position:absolute; bottom:0; left:0; right:0; height:300px; z-index:2; pointer-events:none; background:linear-gradient(to top,var(--base) 28%,transparent); }
 
         /* ══════════════════════════
            HEADER
         ══════════════════════════ */
-        header { position:relative; z-index:10; background:var(--base); border-bottom:1px solid rgba(255,255,255,.06); text-align:center; padding:3rem 2rem 0; }
-        .eyebrow-row { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:1.1rem; }
-        .h-line { height:1px; width:52px; }
-        .h-line.l { background:linear-gradient(to right, transparent, rgba(0,229,160,.5)); }
-        .h-line.r { background:linear-gradient(to left, transparent, rgba(0,229,160,.5)); }
-        .eyebrow { font-family:'DM Mono',monospace; font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--acento); }
-        header h1 { font-size:clamp(2.2rem,5.5vw,3.6rem); font-weight:700; letter-spacing:-.03em; line-height:1.05; }
-        .subtitulo { font-size:.9rem; color:var(--texto-dim); margin-top:.5rem; }
-        .badges { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:1.3rem; flex-wrap:wrap; }
-        .badge { display:inline-flex; align-items:center; gap:7px; padding:5px 16px; border-radius:100px; font-family:'DM Mono',monospace; font-size:.73rem; letter-spacing:.1em; }
-        .badge-green { background:rgba(0,229,160,.08); border:1px solid rgba(0,229,160,.3); color:var(--acento); }
-        .badge-blue  { background:rgba(0,184,255,.07); border:1px solid rgba(0,184,255,.22); color:rgba(0,184,255,.82); }
+        header {
+            position:relative; z-index:10;
+            background:var(--base);
+            border-bottom:1px solid rgba(255,255,255,.055);
+            text-align:center;
+            padding:2.8rem 2rem 0;
+        }
+        .eyebrow-row { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:1rem; }
+        .h-line { height:1px; width:48px; }
+        .h-line.l { background:linear-gradient(to right,transparent,rgba(0,229,160,.5)); }
+        .h-line.r { background:linear-gradient(to left, transparent,rgba(0,229,160,.5)); }
+        .eyebrow { font-family:'DM Mono',monospace; font-size:.67rem; letter-spacing:.22em; text-transform:uppercase; color:var(--acento); }
+        header h1 { font-size:clamp(2rem,5.5vw,3.4rem); font-weight:700; letter-spacing:-.03em; line-height:1.05; }
+        .subtitulo { font-size:.88rem; color:var(--texto-dim); margin-top:.45rem; }
+        .badges { display:flex; align-items:center; justify-content:center; gap:9px; margin-top:1.2rem; flex-wrap:wrap; }
+        .badge { display:inline-flex; align-items:center; gap:7px; padding:5px 15px; border-radius:100px; font-family:'DM Mono',monospace; font-size:.72rem; letter-spacing:.1em; }
+        .badge-green { background:rgba(0,229,160,.07); border:1px solid rgba(0,229,160,.28); color:var(--acento); }
+        .badge-blue  { background:rgba(0,184,255,.06); border:1px solid rgba(0,184,255,.2);  color:rgba(0,184,255,.82); }
         .dot-live { width:6px; height:6px; border-radius:50%; background:var(--acento); box-shadow:0 0 7px var(--acento); animation:blink 2s infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .h-sep { display:flex; align-items:center; justify-content:center; padding:0 2rem; margin-top:2.4rem; }
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        .h-sep { display:flex; align-items:center; justify-content:center; padding:0 2rem; margin-top:2.2rem; }
         .h-sep-line { flex:1; height:1px; max-width:400px; background:linear-gradient(to right,transparent,rgba(255,255,255,.07),transparent); }
-        .h-sep-diamond { width:5px; height:5px; margin:0 14px; border:1px solid rgba(0,229,160,.4); transform:rotate(45deg); background:rgba(0,229,160,.1); }
+        .h-sep-diamond { width:5px; height:5px; margin:0 14px; border:1px solid rgba(0,229,160,.38); transform:rotate(45deg); background:rgba(0,229,160,.1); }
 
         /* ══════════════════════════
-           CARDS
+           CONTENIDO PRINCIPAL
         ══════════════════════════ */
         .zona-video { position:relative; z-index:10; flex-grow:1; }
-        .contenedor { max-width:1100px; margin:0 auto; padding:3rem 24px 5rem; width:100%; }
-        .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; align-items:start; }
-        .tarjeta { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; overflow:hidden; backdrop-filter:blur(14px); display:flex; flex-direction:column; position:relative; transition:border-color .3s, box-shadow .3s, transform .3s; animation:fadeUp .55s ease both; }
-        .tarjeta::before { content:''; position:absolute; top:0; left:15%; right:15%; height:1px; background:linear-gradient(to right,transparent,rgba(255,255,255,.18),transparent); }
-        .tarjeta:nth-child(1){animation-delay:.1s} .tarjeta:nth-child(2){animation-delay:.18s} .tarjeta:nth-child(3){animation-delay:.26s}
-        .tarjeta:hover { border-color:rgba(0,229,160,.45); box-shadow:0 0 30px rgba(0,229,160,.1),0 20px 48px rgba(0,0,0,.45); transform:translateY(-5px); }
-        .t-head { padding:20px 22px 14px; display:flex; align-items:flex-start; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,.07); }
-        .t-meta { display:flex; flex-direction:column; gap:3px; }
-        .t-label { font-family:'DM Mono',monospace; font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--acento); opacity:.7; }
-        .t-titulo { font-size:1.25rem; font-weight:600; letter-spacing:-.01em; }
-        .t-icon { font-size:1.6rem; opacity:.6; margin-top:2px; transition:opacity .3s,transform .3s; }
-        .tarjeta:hover .t-icon { opacity:1; transform:scale(1.1) rotate(-5deg); }
-        .t-body { padding:14px 22px 22px; flex-grow:1; }
-        .lista { list-style:none; display:flex; flex-direction:column; gap:4px; }
-        .enlace { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; color:rgba(255,255,255,.58); text-decoration:none; font-size:.875rem; font-weight:500; border:1px solid transparent; transition:all .22s ease; cursor:pointer; }
-        .enlace::before { content:''; width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.2); flex-shrink:0; transition:background .22s,box-shadow .22s; }
-        .enlace:hover { background:rgba(0,229,160,.07); border-color:rgba(0,229,160,.18); color:#fff; padding-left:17px; }
+        .contenedor { max-width:1200px; margin:0 auto; padding:2.8rem 24px 5rem; width:100%; }
+
+        /* Secciones (Clases / Actividades) */
+        .seccion { margin-bottom:3rem; }
+        .seccion-header {
+            display:flex;
+            align-items:center;
+            gap:14px;
+            margin-bottom:1.2rem;
+        }
+        .seccion-label {
+            font-family:'DM Mono',monospace;
+            font-size:.65rem;
+            letter-spacing:.2em;
+            text-transform:uppercase;
+            color:var(--acento);
+            opacity:.7;
+            white-space:nowrap;
+        }
+        .seccion-line {
+            flex:1; height:1px;
+            background:linear-gradient(to right, rgba(255,255,255,.08), transparent);
+        }
+
+        /* Grid de tarjetas — min más chico para que quepan más */
+        .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.2rem; align-items:start; }
+
+        /* ══════════════════════════
+           TARJETA
+        ══════════════════════════ */
+        .tarjeta {
+            background:var(--card-bg);
+            border:1px solid var(--card-border);
+            border-radius:13px;
+            overflow:hidden;
+            backdrop-filter:blur(16px);
+            display:flex; flex-direction:column;
+            position:relative;
+            transition:border-color .28s, box-shadow .28s, transform .28s;
+            animation:fadeUp .5s ease both;
+        }
+        .tarjeta::before {
+            content:''; position:absolute; top:0; left:12%; right:12%; height:1px;
+            background:linear-gradient(to right,transparent,rgba(255,255,255,.16),transparent);
+        }
+        .tarjeta:hover {
+            border-color:rgba(0,229,160,.4);
+            box-shadow:0 0 28px rgba(0,229,160,.09), 0 16px 44px rgba(0,0,0,.38);
+            transform:translateY(-4px);
+        }
+
+        .t-head {
+            padding:18px 20px 13px;
+            display:flex; align-items:flex-start; justify-content:space-between;
+            border-bottom:1px solid rgba(255,255,255,.06);
+        }
+        .t-meta { display:flex; flex-direction:column; gap:2px; }
+        .t-label { font-family:'DM Mono',monospace; font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--acento); opacity:.65; }
+        .t-titulo { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; color:#fff; }
+        .t-count {
+            font-family:'DM Mono',monospace; font-size:.6rem;
+            color:var(--texto-dim); margin-top:3px;
+        }
+        .t-icon { font-size:1.5rem; opacity:.55; margin-top:2px; transition:opacity .28s,transform .28s; flex-shrink:0; }
+        .tarjeta:hover .t-icon { opacity:.9; transform:scale(1.1) rotate(-5deg); }
+
+        .t-body { padding:12px 20px 20px; flex-grow:1; }
+        .lista { list-style:none; display:flex; flex-direction:column; gap:3px; }
+        .enlace {
+            display:flex; align-items:center; gap:9px;
+            padding:8px 11px; border-radius:7px;
+            color:var(--texto-mid); text-decoration:none;
+            font-size:.84rem; font-weight:500;
+            border:1px solid transparent;
+            transition:all .2s ease; cursor:pointer;
+        }
+        .enlace::before { content:''; width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.18); flex-shrink:0; transition:background .2s,box-shadow .2s; }
+        .enlace:hover { background:rgba(0,229,160,.07); border-color:rgba(0,229,160,.17); color:#fff; padding-left:16px; }
         .enlace:hover::before { background:var(--acento); box-shadow:0 0 7px rgba(0,229,160,.4); }
 
         /* ══════════════════════════
            FOOTER
         ══════════════════════════ */
-        footer { position:relative; z-index:10; background:var(--base); border-top:1px solid rgba(255,255,255,.06); }
-        .f-inner { padding:2.2rem 2rem 2.5rem; max-width:960px; margin:0 auto; }
-        .f-sep { display:flex; align-items:center; justify-content:center; margin-bottom:1.8rem; }
+        footer { position:relative; z-index:10; background:var(--base); border-top:1px solid rgba(255,255,255,.055); }
+        .f-inner { padding:2rem 2rem 2.3rem; max-width:960px; margin:0 auto; }
+        .f-sep { display:flex; align-items:center; justify-content:center; margin-bottom:1.6rem; }
         .f-sep-line { flex:1; height:1px; max-width:380px; background:linear-gradient(to right,transparent,rgba(255,255,255,.07),transparent); }
-        .f-sep-icon { font-size:.5rem; color:rgba(0,229,160,.35); margin:0 14px; }
-        .f-content { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.4rem; }
+        .f-sep-icon { font-size:.5rem; color:rgba(0,229,160,.32); margin:0 14px; }
+        .f-content { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.2rem; }
         .f-left { display:flex; flex-direction:column; gap:4px; }
-        .f-cargo { font-family:'DM Mono',monospace; font-size:.64rem; letter-spacing:.14em; color:var(--acento); opacity:.6; text-transform:uppercase; }
-        .f-nombre { font-size:.97rem; font-weight:600; color:rgba(255,255,255,.8); }
+        .f-cargo { font-family:'DM Mono',monospace; font-size:.63rem; letter-spacing:.14em; color:var(--acento); opacity:.55; text-transform:uppercase; }
+        .f-nombre { font-size:.95rem; font-weight:600; color:rgba(255,255,255,.78); }
         .f-center { display:flex; flex-direction:column; align-items:center; gap:3px; }
-        .f-logo { font-size:1.3rem; font-weight:700; letter-spacing:.05em; }
-        .f-sub { font-size:.7rem; color:var(--texto-dim); text-align:center; }
-        .f-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
-        .f-badge { display:inline-flex; align-items:center; background:rgba(0,229,160,.07); border:1px solid rgba(0,229,160,.18); color:rgba(0,229,160,.72); padding:4px 13px; border-radius:100px; font-size:.67rem; font-family:'DM Mono',monospace; letter-spacing:.08em; }
-        .f-copy { font-size:.67rem; color:rgba(255,255,255,.17); font-family:'DM Mono',monospace; }
+        .f-logo { font-size:1.2rem; font-weight:700; letter-spacing:.05em; }
+        .f-sub { font-size:.69rem; color:var(--texto-dim); text-align:center; }
+        .f-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+        .f-badge { display:inline-flex; align-items:center; background:rgba(0,229,160,.06); border:1px solid rgba(0,229,160,.16); color:rgba(0,229,160,.7); padding:4px 12px; border-radius:100px; font-size:.66rem; font-family:'DM Mono',monospace; letter-spacing:.08em; }
+        .f-copy { font-size:.66rem; color:rgba(255,255,255,.16); font-family:'DM Mono',monospace; }
 
         /* ══════════════════════════
            MODAL
         ══════════════════════════ */
-        #visor { position:fixed; inset:0; background:rgba(7,17,26,.98); z-index:9999; display:none; flex-direction:column; }
+        #visor { position:fixed; inset:0; background:rgba(8,18,28,.98); z-index:9999; display:none; flex-direction:column; }
         .v-head { background:var(--base); padding:13px 22px; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,.07); }
-        .btn-close { background:transparent; color:rgba(255,255,255,.5); border:1px solid rgba(255,255,255,.1); padding:7px 17px; border-radius:7px; font-family:'Space Grotesk',sans-serif; font-size:.875rem; font-weight:500; cursor:pointer; transition:all .22s; }
+        .btn-close { background:transparent; color:rgba(255,255,255,.48); border:1px solid rgba(255,255,255,.1); padding:7px 17px; border-radius:7px; font-family:'Space Grotesk',sans-serif; font-size:.875rem; font-weight:500; cursor:pointer; transition:all .22s; }
         .btn-close:hover { border-color:var(--acento); color:var(--acento); background:rgba(0,229,160,.06); }
         #visor-iframe { flex-grow:1; border:none; width:100%; background:#fff; }
 
-        @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-        @media(max-width:600px){ .f-content{flex-direction:column;align-items:center;text-align:center} .f-right{align-items:center} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+        @media(max-width:600px){
+            .f-content{flex-direction:column;align-items:center;text-align:center}
+            .f-right{align-items:center}
+        }
     </style>
 </head>
 <body>
 
-    <!-- ══ PRELOADER ══ -->
+    <!-- PRELOADER -->
     <div id="preloader">
         <div class="terminal">
             <div class="term-bar">
@@ -277,9 +246,7 @@
                 </div>
                 <span class="term-path">~/portafolio/<em>computacion-grafica</em></span>
             </div>
-
             <div class="term-body" id="term-body"></div>
-
             <div class="term-footer">
                 <span class="prog-status" id="prog-status">Iniciando...</span>
                 <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
@@ -288,7 +255,7 @@
         </div>
     </div>
 
-    <!-- ══ VIDEO ══ -->
+    <!-- VIDEO -->
     <div class="video-zona">
         <div class="overlay"></div>
         <div class="video-slide active">
@@ -301,11 +268,16 @@
                 <source src="assets/dotadragon.mp4" type="video/mp4">
             </video>
         </div>
+        <div class="video-slide">
+            <video muted loop playsinline>
+                <source src="assets/scarface.mp4" type="video/mp4">
+            </video>
+        </div>
         <div class="fade-top"></div>
         <div class="fade-bot"></div>
     </div>
 
-    <!-- ══ HEADER ══ -->
+    <!-- HEADER -->
     <header>
         <div style="animation:fadeUp .6s ease both">
             <div class="eyebrow-row">
@@ -320,63 +292,136 @@
                 <div class="badge badge-blue">2026</div>
             </div>
         </div>
-        <div class="h-sep" style="margin-top:2.4rem">
+        <div class="h-sep" style="margin-top:2.2rem">
             <div class="h-sep-line"></div>
             <div class="h-sep-diamond"></div>
             <div class="h-sep-line" style="background:linear-gradient(to left,transparent,rgba(255,255,255,.07),transparent)"></div>
         </div>
     </header>
 
-    <!-- ══ TARJETAS ══ -->
+    <!-- TARJETAS -->
     <div class="zona-video">
         <main class="contenedor">
-            <div class="grid">
-                <div class="tarjeta">
-                    <div class="t-head">
-                        <div class="t-meta"><span class="t-label">Unidad 01</span><h2 class="t-titulo">Clase 1</h2></div>
-                        <span class="t-icon">📊</span>
-                    </div>
-                    <div class="t-body">
-                        <ul class="lista">
-                            <li><a href="Ejercicios/Clase 1/barras.html" class="enlace">barras.html</a></li>
-                            <li><a href="Ejercicios/Clase 1/circulo.html" class="enlace">circulo.html</a></li>
-                            <li><a href="Ejercicios/Clase 1/cuadrado.html" class="enlace">cuadrado.html</a></li>
-                        </ul>
-                    </div>
+
+            <!-- SECCIÓN: CLASES -->
+            <div class="seccion">
+                <div class="seccion-header">
+                    <span class="seccion-label">Clases</span>
+                    <div class="seccion-line"></div>
                 </div>
-                <div class="tarjeta">
-                    <div class="t-head">
-                        <div class="t-meta"><span class="t-label">Unidad 02</span><h2 class="t-titulo">Clase 2</h2></div>
-                        <span class="t-icon">✨</span>
+                <div class="grid">
+
+                    <div class="tarjeta" style="animation-delay:.08s">
+                        <div class="t-head">
+                            <div class="t-meta">
+                                <span class="t-label">Clase 01</span>
+                                <h2 class="t-titulo">Clase 1</h2>
+                                <span class="t-count">3 ejercicios</span>
+                            </div>
+                            <span class="t-icon">📊</span>
+                        </div>
+                        <div class="t-body">
+                            <ul class="lista">
+                                <li><a href="Ejercicios/Clase 1/barras.html" class="enlace">barras.html</a></li>
+                                <li><a href="Ejercicios/Clase 1/circulo.html" class="enlace">circulo.html</a></li>
+                                <li><a href="Ejercicios/Clase 1/cuadrado.html" class="enlace">cuadrado.html</a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="t-body">
-                        <ul class="lista">
-                            <li><a href="Ejercicios/Clase 2/figura2d.html" class="enlace">figura2d.html</a></li>
-                            <li><a href="Ejercicios/Clase 2/figura2d - derecha.html" class="enlace">figura2d - derecha.html</a></li>
-                            <li><a href="Ejercicios/Clase 2/figura2d - izquierda.html" class="enlace">figura2d - izquierda.html</a></li>
-                            <li><a href="Ejercicios/Clase 2/lineadinamica.html" class="enlace">lineadinamica.html</a></li>
-                            <li><a href="Ejercicios/Clase 2/lineadinamica 2.html" class="enlace">lineadinamica 2.html</a></li>
-                        </ul>
+
+                    <div class="tarjeta" style="animation-delay:.15s">
+                        <div class="t-head">
+                            <div class="t-meta">
+                                <span class="t-label">Clase 02</span>
+                                <h2 class="t-titulo">Clase 2</h2>
+                                <span class="t-count">5 ejercicios</span>
+                            </div>
+                            <span class="t-icon">✨</span>
+                        </div>
+                        <div class="t-body">
+                            <ul class="lista">
+                                <li><a href="Ejercicios/Clase 2/figura2d.html" class="enlace">figura2d.html</a></li>
+                                <li><a href="Ejercicios/Clase 2/figura2d - derecha.html" class="enlace">figura2d - derecha.html</a></li>
+                                <li><a href="Ejercicios/Clase 2/figura2d - izquierda.html" class="enlace">figura2d - izquierda.html</a></li>
+                                <li><a href="Ejercicios/Clase 2/lineadinamica.html" class="enlace">lineadinamica.html</a></li>
+                                <li><a href="Ejercicios/Clase 2/lineadinamica 2.html" class="enlace">lineadinamica 2.html</a></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <div class="tarjeta">
-                    <div class="t-head">
-                        <div class="t-meta"><span class="t-label">Actividad</span><h2 class="t-titulo">Actividad 4</h2></div>
-                        <span class="t-icon">📈</span>
+
+                    <div class="tarjeta" style="animation-delay:.22s">
+                        <div class="t-head">
+                            <div class="t-meta">
+                                <span class="t-label">Clase 03</span>
+                                <h2 class="t-titulo">Clase 3</h2>
+                                <span class="t-count">3 ejercicios</span>
+                            </div>
+                            <span class="t-icon">🧊</span>
+                        </div>
+                        <div class="t-body">
+                            <ul class="lista">
+                                <li><a href="Ejercicios/Clase 3/Ejercicio3.html" class="enlace">Ejercicio3.html</a></li>
+                                <li><a href="Ejercicios/Clase 3/ejercicioen3D.html" class="enlace">ejercicioen3D.html</a></li>
+                                <li><a href="Ejercicios/Clase 3/ejercicioen3D_2.html" class="enlace">ejercicioen3D_2.html</a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="t-body">
-                        <ul class="lista">
-                            <li><a href="Ejercicios/Actividad 4/Ejercicio 1.html" class="enlace">Ejercicio 1.html</a></li>
-                            <li><a href="Ejercicios/Actividad 4/Ejercicio 2.html" class="enlace">Ejercicio 2.html</a></li>
-                            <li><a href="Ejercicios/Actividad 4/Ejercicio 3.html" class="enlace">Ejercicio 3.html</a></li>
-                        </ul>
-                    </div>
+
                 </div>
             </div>
+
+            <!-- SECCIÓN: ACTIVIDADES -->
+            <div class="seccion">
+                <div class="seccion-header">
+                    <span class="seccion-label">Actividades</span>
+                    <div class="seccion-line"></div>
+                </div>
+                <div class="grid">
+
+                    <div class="tarjeta" style="animation-delay:.1s">
+                        <div class="t-head">
+                            <div class="t-meta">
+                                <span class="t-label">Actividad 04</span>
+                                <h2 class="t-titulo">Actividad 4</h2>
+                                <span class="t-count">3 ejercicios</span>
+                            </div>
+                            <span class="t-icon">📈</span>
+                        </div>
+                        <div class="t-body">
+                            <ul class="lista">
+                                <li><a href="Ejercicios/Actividad 4/Ejercicio 1.html" class="enlace">Ejercicio 1.html</a></li>
+                                <li><a href="Ejercicios/Actividad 4/Ejercicio 2.html" class="enlace">Ejercicio 2.html</a></li>
+                                <li><a href="Ejercicios/Actividad 4/Ejercicio 3.html" class="enlace">Ejercicio 3.html</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta" style="animation-delay:.18s">
+                        <div class="t-head">
+                            <div class="t-meta">
+                                <span class="t-label">Actividad 05</span>
+                                <h2 class="t-titulo">Actividad 5</h2>
+                                <span class="t-count">4 ejercicios</span>
+                            </div>
+                            <span class="t-icon">🎯</span>
+                        </div>
+                        <div class="t-body">
+                            <ul class="lista">
+                                <li><a href="Ejercicios/Actividad 5/Ejercicio 1 --.html" class="enlace">Ejercicio 1 --.html</a></li>
+                                <li><a href="Ejercicios/Actividad 5/Ejercicio 1.html" class="enlace">Ejercicio 1.html</a></li>
+                                <li><a href="Ejercicios/Actividad 5/Ejercicio 2.html" class="enlace">Ejercicio 2.html</a></li>
+                                <li><a href="Ejercicios/Actividad 5/Ejercicio 3.html" class="enlace">Ejercicio 3.html</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <!-- ══ FOOTER ══ -->
+    <!-- FOOTER -->
     <footer>
         <div class="f-inner">
             <div class="f-sep">
@@ -401,7 +446,7 @@
         </div>
     </footer>
 
-    <!-- ══ MODAL ══ -->
+    <!-- MODAL -->
     <div id="visor">
         <div class="v-head">
             <button class="btn-close" id="btn-close">← Volver al portafolio</button>
@@ -410,131 +455,66 @@
     </div>
 
     <script>
-    /* ══════════════════════════════════════════════
-       PRELOADER — líneas de código con typing lento
-    ══════════════════════════════════════════════ */
-
-    // Cada línea: { ln, html, pause }
-    // pause = ms que se espera DESPUÉS de mostrar esta línea antes de la siguiente
+    /* PRELOADER */
     const LINES = [
-        {
-            ln: 1,
-            html: `<span class="cc">// Computación Gráfica · UTEA</span>`,
-            pause: 300
-        },
-        {
-            ln: 2,
-            html: `<span class="ck">import</span> <span class="cl">WebGL2</span> <span class="ck">from</span> <span class="cs">'webgl2'</span>`,
-            pause: 230
-        },
-        {
-            ln: 3,
-            html: `<span class="ck">import</span> <span class="cl">{ mat4, vec3 }</span> <span class="ck">from</span> <span class="cs">'gl-matrix'</span>`,
-            pause: 230
-        },
-        {
-            ln: 4,
-            html: `<span class="ck">import</span> <span class="cl">* as THREE</span> <span class="ck">from</span> <span class="cs">'three'</span>`,
-            pause: 160
-        },
-        {
-            ln: 5,
-            html: `<span class="cd">──────────────────────────</span>`,
-            pause: 160
-        },
-        {
-            ln: 6,
-            html: `<span class="ck">const</span> <span class="cv">gl</span> <span class="co">=</span> <span class="cv">canvas</span><span class="co">.</span><span class="cf">getContext</span><span class="co">(</span><span class="cs">'webgl2'</span><span class="co">)</span>`,
-            pause: 260
-        },
-        {
-            ln: 7,
-            html: `<span class="cf">gl.enable</span><span class="co">(</span><span class="cl">DEPTH_TEST</span><span class="co">)</span>  <span class="cc">// z-buffer</span>`,
-            pause: 260
-        },
-        {
-            ln: 8,
-            html: `<span class="cf">mat4.perspective</span><span class="co">(</span><span class="cv">proj</span><span class="co">,</span> <span class="cn">45</span><span class="co">,</span> <span class="cv">aspect</span><span class="co">,</span> <span class="cn">0.1</span><span class="co">,</span> <span class="cn">1000</span><span class="co">)</span>`,
-            pause: 300
-        },
-        {
-            ln: 9,
-            html: `<span class="cf">drawLine</span><span class="co">(</span><span class="cv">p0</span><span class="co">,</span> <span class="cv">p1</span><span class="co">)</span>  <span class="cc">// Bresenham</span>`,
-            pause: 270
-        },
-        {
-            ln: 10,
-            html: `<span class="cc">// ✓ pipeline listo — cargando portafolio</span>`,
-            pause: 220
-        },
+        { ln:1,  html:`<span class="cc">// Computación Gráfica · UTEA</span>`, pause:300 },
+        { ln:2,  html:`<span class="ck">import</span> <span class="cl">WebGL2</span> <span class="ck">from</span> <span class="cs">'webgl2'</span>`, pause:230 },
+        { ln:3,  html:`<span class="ck">import</span> <span class="cl">{ mat4, vec3 }</span> <span class="ck">from</span> <span class="cs">'gl-matrix'</span>`, pause:230 },
+        { ln:4,  html:`<span class="ck">import</span> <span class="cl">* as THREE</span> <span class="ck">from</span> <span class="cs">'three'</span>`, pause:160 },
+        { ln:5,  html:`<span class="cd">──────────────────────────</span>`, pause:160 },
+        { ln:6,  html:`<span class="ck">const</span> <span class="cv">gl</span> <span class="co">=</span> <span class="cv">canvas</span><span class="co">.</span><span class="cf">getContext</span><span class="co">(</span><span class="cs">'webgl2'</span><span class="co">)</span>`, pause:260 },
+        { ln:7,  html:`<span class="cf">gl.enable</span><span class="co">(</span><span class="cl">DEPTH_TEST</span><span class="co">)</span>  <span class="cc">// z-buffer</span>`, pause:260 },
+        { ln:8,  html:`<span class="cf">mat4.perspective</span><span class="co">(</span><span class="cv">proj</span><span class="co">,</span> <span class="cn">45</span><span class="co">,</span> <span class="cv">aspect</span><span class="co">,</span> <span class="cn">0.1</span><span class="co">,</span> <span class="cn">1000</span><span class="co">)</span>`, pause:300 },
+        { ln:9,  html:`<span class="cf">drawLine</span><span class="co">(</span><span class="cv">p0</span><span class="co">,</span> <span class="cv">p1</span><span class="co">)</span>  <span class="cc">// Bresenham</span>`, pause:270 },
+        { ln:10, html:`<span class="cc">// ✓ pipeline listo — cargando portafolio</span>`, pause:220 },
     ];
-
     const STEPS = [
-        { at: 0,   pct: 0,   label: 'Iniciando...' },
-        { at: 1,   pct: 15,  label: 'Importando librerías...' },
-        { at: 4,   pct: 40,  label: 'Compilando shaders...' },
-        { at: 6,   pct: 65,  label: 'Inicializando WebGL...' },
-        { at: 8,   pct: 82,  label: 'Cargando recursos...' },
-        { at: 9,   pct: 100, label: '¡Todo listo!' },
+        { at:0, pct:0,   label:'Iniciando...' },
+        { at:1, pct:15,  label:'Importando librerías...' },
+        { at:4, pct:40,  label:'Compilando shaders...' },
+        { at:6, pct:65,  label:'Inicializando WebGL...' },
+        { at:8, pct:82,  label:'Cargando recursos...' },
+        { at:9, pct:100, label:'¡Todo listo!' },
     ];
-
-    const termBody  = document.getElementById('term-body');
-    const progFill  = document.getElementById('prog-fill');
-    const progNum   = document.getElementById('prog-num');
-    const progStat  = document.getElementById('prog-status');
-    const preloader = document.getElementById('preloader');
-
-    // Cursor persistente
-    const cur = Object.assign(document.createElement('span'), { className: 'cursor' });
+    const termBody = document.getElementById('term-body');
+    const progFill = document.getElementById('prog-fill');
+    const progNum  = document.getElementById('prog-num');
+    const progStat = document.getElementById('prog-status');
+    const preEl    = document.getElementById('preloader');
+    const cur      = Object.assign(document.createElement('span'), { className:'cursor' });
 
     function setProgress(idx) {
-        // Encuentra el step más cercano al índice actual
-        let step = STEPS[0];
-        for (const s of STEPS) { if (idx >= s.at) step = s; }
-        progFill.style.width = step.pct + '%';
-        progNum.textContent  = step.pct + '%';
-        progStat.textContent = step.label;
+        let s = STEPS[0];
+        for (const x of STEPS) { if (idx >= x.at) s = x; }
+        progFill.style.width = s.pct + '%';
+        progNum.textContent  = s.pct + '%';
+        progStat.textContent = s.label;
     }
-
     function showLine(idx) {
         const { ln, html } = LINES[idx];
-
-        // Mover cursor — quitar de línea anterior
         if (cur.parentNode) cur.parentNode.removeChild(cur);
-
         const row = document.createElement('div');
         row.className = 'code-line';
         row.innerHTML = `<span class="ln">${String(ln).padStart(2,' ')}</span><span class="code-text">${html}</span>`;
         row.appendChild(cur);
         termBody.appendChild(row);
-
-        // Forzar reflow para que la transición funcione
         void row.offsetHeight;
         row.classList.add('show');
-
         setProgress(idx);
     }
-
-    function runSequence(idx) {
+    function run(idx) {
         if (idx >= LINES.length) {
-            // Fin — ocultar cursor y esperar un momento
             if (cur.parentNode) cur.parentNode.removeChild(cur);
-            setTimeout(() => preloader.classList.add('hidden'), 700);
+            setTimeout(() => preEl.classList.add('hidden'), 700);
             return;
         }
         showLine(idx);
-        setTimeout(() => runSequence(idx + 1), LINES[idx].pause);
+        setTimeout(() => run(idx + 1), LINES[idx].pause);
     }
-
-    // Arrancar con pequeña pausa inicial
-    setTimeout(() => runSequence(0), 400);
-
-    // Video
+    setTimeout(() => run(0), 400);
     document.getElementById('vid0').play().catch(()=>{});
 
-    /* ══════════════════════════════════════════════
-       MODAL
-    ══════════════════════════════════════════════ */
+    /* MODAL */
     const visor  = document.getElementById('visor');
     const iframe = document.getElementById('visor-iframe');
     document.getElementById('btn-close').onclick = () => { visor.style.display='none'; iframe.src=''; };
@@ -546,9 +526,7 @@
         });
     });
 
-    /* ══════════════════════════════════════════════
-       VIDEO ROTATION — cada 5 s
-    ══════════════════════════════════════════════ */
+    /* VIDEO ROTATION */
     const slides = document.querySelectorAll('.video-slide');
     const vids   = document.querySelectorAll('.video-slide video');
     let cur2 = 0;

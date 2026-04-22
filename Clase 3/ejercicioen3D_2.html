@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>    
+<!-- ROTACIÓN DE CUBO 3D -->
+
+<script>
+// CREAR LA ESCENA
+const scene = new THREE.Scene();
+// CREAR UNA CAMARA
+   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
+// CREAR UN RENDERIZADOR
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+// CREAR EL CUBO
+const geometry = new THREE.BoxGeometry(1,1,1);
+const material = new THREE.MeshNormalMaterial(); 
+const cubo = new THREE.Mesh(geometry, material);
+scene.add(cubo);   
+// UBICAR LA CAMARA
+camera.position.z = 5;
+//ANIMACIÓN CON ROTACIÓN
+function animate() {
+    requestAnimationFrame(animate);
+    // ROTAR EL CUBO EN LOS EJES X E Y
+    cubo.rotation.x += 0.01;
+    cubo.rotation.y += 0.02;
+    // DIBUJAR LA ESCENA
+    renderer.render(scene, camera);
+}
+//EJECUTAR LA ANIMACIÓN
+animate();
+</script>
+
+
+</body>
+</html>

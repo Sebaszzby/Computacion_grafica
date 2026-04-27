@@ -115,38 +115,20 @@
         .h-sep-diamond { width:5px; height:5px; margin:0 14px; border:1px solid rgba(0,229,160,.38); transform:rotate(45deg); background:rgba(0,229,160,.1); }
 
         /* ══════════════════════════
-           CONTENIDO PRINCIPAL
+           CONTENIDO
         ══════════════════════════ */
         .zona-video { position:relative; z-index:10; flex-grow:1; }
         .contenedor { max-width:1200px; margin:0 auto; padding:2.8rem 24px 5rem; width:100%; }
 
-        /* Secciones (Clases / Actividades) */
         .seccion { margin-bottom:3rem; }
-        .seccion-header {
-            display:flex;
-            align-items:center;
-            gap:14px;
-            margin-bottom:1.2rem;
-        }
-        .seccion-label {
-            font-family:'DM Mono',monospace;
-            font-size:.65rem;
-            letter-spacing:.2em;
-            text-transform:uppercase;
-            color:var(--acento);
-            opacity:.7;
-            white-space:nowrap;
-        }
-        .seccion-line {
-            flex:1; height:1px;
-            background:linear-gradient(to right, rgba(255,255,255,.08), transparent);
-        }
+        .seccion-header { display:flex; align-items:center; gap:14px; margin-bottom:1.2rem; }
+        .seccion-label { font-family:'DM Mono',monospace; font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; color:var(--acento); opacity:.7; white-space:nowrap; }
+        .seccion-line { flex:1; height:1px; background:linear-gradient(to right, rgba(255,255,255,.08), transparent); }
 
-        /* Grid de tarjetas — min más chico para que quepan más */
         .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.2rem; align-items:start; }
 
         /* ══════════════════════════
-           TARJETA
+           TARJETA BASE
         ══════════════════════════ */
         .tarjeta {
             background:var(--card-bg);
@@ -168,22 +150,13 @@
             box-shadow:0 0 28px rgba(0,229,160,.09), 0 16px 44px rgba(0,0,0,.38);
             transform:translateY(-4px);
         }
-
-        .t-head {
-            padding:18px 20px 13px;
-            display:flex; align-items:flex-start; justify-content:space-between;
-            border-bottom:1px solid rgba(255,255,255,.06);
-        }
+        .t-head { padding:18px 20px 13px; display:flex; align-items:flex-start; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,.06); }
         .t-meta { display:flex; flex-direction:column; gap:2px; }
         .t-label { font-family:'DM Mono',monospace; font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--acento); opacity:.65; }
         .t-titulo { font-size:1.15rem; font-weight:600; letter-spacing:-.01em; color:#fff; }
-        .t-count {
-            font-family:'DM Mono',monospace; font-size:.6rem;
-            color:var(--texto-dim); margin-top:3px;
-        }
+        .t-count { font-family:'DM Mono',monospace; font-size:.6rem; color:var(--texto-dim); margin-top:3px; }
         .t-icon { font-size:1.5rem; opacity:.55; margin-top:2px; transition:opacity .28s,transform .28s; flex-shrink:0; }
         .tarjeta:hover .t-icon { opacity:.9; transform:scale(1.1) rotate(-5deg); }
-
         .t-body { padding:12px 20px 20px; flex-grow:1; }
         .lista { list-style:none; display:flex; flex-direction:column; gap:3px; }
         .enlace {
@@ -197,6 +170,100 @@
         .enlace::before { content:''; width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.18); flex-shrink:0; transition:background .2s,box-shadow .2s; }
         .enlace:hover { background:rgba(0,229,160,.07); border-color:rgba(0,229,160,.17); color:#fff; padding-left:16px; }
         .enlace:hover::before { background:var(--acento); box-shadow:0 0 7px rgba(0,229,160,.4); }
+
+        /* ══════════════════════════
+           TARJETA MONOGRAFÍA — especial
+        ══════════════════════════ */
+        .tarjeta-doc {
+            background: rgba(14, 28, 44, 0.82);
+            border-color: rgba(0,184,255,.18);
+            grid-column: 1 / -1; /* ocupa todo el ancho disponible */
+        }
+        .tarjeta-doc::before {
+            background:linear-gradient(to right,transparent,rgba(0,184,255,.2),transparent);
+        }
+        .tarjeta-doc:hover {
+            border-color:rgba(0,184,255,.5);
+            box-shadow:0 0 32px rgba(0,184,255,.1), 0 16px 44px rgba(0,0,0,.4);
+        }
+
+        /* Layout interno horizontal para la monografía */
+        .doc-inner {
+            display:flex;
+            align-items:center;
+            gap:28px;
+            padding:24px 28px;
+            flex-wrap:wrap;
+        }
+
+        /* Ícono grande de documento */
+        .doc-icon-wrap {
+            flex-shrink:0;
+            width:64px; height:64px;
+            border-radius:14px;
+            background:rgba(0,184,255,.08);
+            border:1px solid rgba(0,184,255,.2);
+            display:flex; align-items:center; justify-content:center;
+            font-size:2rem;
+            transition:transform .28s, background .28s;
+        }
+        .tarjeta-doc:hover .doc-icon-wrap {
+            transform:scale(1.06);
+            background:rgba(0,184,255,.14);
+        }
+
+        /* Info de la monografía */
+        .doc-info { flex:1; min-width:180px; display:flex; flex-direction:column; gap:5px; }
+        .doc-badge {
+            display:inline-flex; align-items:center; gap:6px;
+            font-family:'DM Mono',monospace; font-size:.6rem;
+            letter-spacing:.18em; text-transform:uppercase;
+            color:var(--acento2); opacity:.75;
+        }
+        .doc-badge::before {
+            content:''; width:4px; height:4px; border-radius:50%;
+            background:var(--acento2); opacity:.8;
+        }
+        .doc-titulo { font-size:1.18rem; font-weight:700; color:#fff; letter-spacing:-.01em; }
+        .doc-desc { font-size:.82rem; color:var(--texto-dim); line-height:1.5; margin-top:2px; }
+
+        /* Tipo de archivo */
+        .doc-filetype {
+            display:inline-flex; align-items:center; gap:6px;
+            font-family:'DM Mono',monospace; font-size:.65rem;
+            color:rgba(0,184,255,.65); margin-top:4px;
+            letter-spacing:.04em;
+        }
+        .doc-filetype::before {
+            content:''; width:10px; height:12px;
+            background:rgba(0,184,255,.3);
+            border-radius:2px;
+            display:inline-block;
+        }
+
+        /* Botón de descarga */
+        .doc-actions { flex-shrink:0; }
+        .btn-download {
+            display:inline-flex; align-items:center; gap:9px;
+            padding:11px 22px;
+            background:rgba(0,184,255,.1);
+            border:1px solid rgba(0,184,255,.3);
+            border-radius:9px;
+            color:rgba(0,184,255,.9);
+            text-decoration:none;
+            font-family:'Space Grotesk',sans-serif;
+            font-size:.88rem; font-weight:600;
+            transition:all .22s ease;
+            white-space:nowrap;
+        }
+        .btn-download:hover {
+            background:rgba(0,184,255,.18);
+            border-color:rgba(0,184,255,.55);
+            color:#fff;
+            transform:translateY(-2px);
+            box-shadow:0 8px 24px rgba(0,184,255,.15);
+        }
+        .btn-download svg { width:16px; height:16px; opacity:.8; flex-shrink:0; }
 
         /* ══════════════════════════
            FOOTER
@@ -230,6 +297,9 @@
         @media(max-width:600px){
             .f-content{flex-direction:column;align-items:center;text-align:center}
             .f-right{align-items:center}
+            .doc-inner{flex-direction:column; align-items:flex-start}
+            .doc-actions{width:100%}
+            .btn-download{width:100%; justify-content:center}
         }
     </style>
 </head>
@@ -415,6 +485,40 @@
                         </div>
                     </div>
 
+                    <!-- ACTIVIDAD 6 — Monografía (tarjeta especial ancha) -->
+                    <div class="tarjeta tarjeta-doc" style="animation-delay:.26s">
+                        <div class="doc-inner">
+
+                            <!-- Ícono documento -->
+                            <div class="doc-icon-wrap">📄</div>
+
+                            <!-- Info -->
+                            <div class="doc-info">
+                                <span class="doc-badge">Actividad 06 · Monografía</span>
+                                <h2 class="doc-titulo">Curvas y Mallas</h2>
+                                <p class="doc-desc">
+                                    Investigación académica sobre curvas paramétricas, splines y mallas poligonales
+                                    aplicadas a la computación gráfica.
+                                </p>
+                                <span class="doc-filetype">Curvas Mallas monografia.docx</span>
+                            </div>
+
+                            <!-- Botón descarga -->
+                            <div class="doc-actions">
+                                <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx"
+                                   download
+                                   class="btn-download">
+                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8 2v8M5 7l3 3 3-3"/>
+                                        <path d="M2 13h12"/>
+                                    </svg>
+                                    Descargar monografía
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -446,7 +550,7 @@
         </div>
     </footer>
 
-    <!-- MODAL -->
+    <!-- MODAL (solo para archivos .html) -->
     <div id="visor">
         <div class="v-head">
             <button class="btn-close" id="btn-close">← Volver al portafolio</button>
@@ -514,7 +618,7 @@
     setTimeout(() => run(0), 400);
     document.getElementById('vid0').play().catch(()=>{});
 
-    /* MODAL */
+    /* MODAL — solo para .html, no para .docx */
     const visor  = document.getElementById('visor');
     const iframe = document.getElementById('visor-iframe');
     document.getElementById('btn-close').onclick = () => { visor.style.display='none'; iframe.src=''; };

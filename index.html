@@ -175,86 +175,90 @@
            TARJETA MONOGRAFÍA — especial
         ══════════════════════════ */
         .tarjeta-doc {
-            background: rgba(14, 28, 44, 0.82);
-            border-color: rgba(0,184,255,.18);
-            grid-column: 1 / -1; /* ocupa todo el ancho disponible */
+            background: rgba(12, 26, 42, 0.88);
+            border-color: rgba(0,184,255,.22);
         }
         .tarjeta-doc::before {
-            background:linear-gradient(to right,transparent,rgba(0,184,255,.2),transparent);
+            background:linear-gradient(to right,transparent,rgba(0,184,255,.25),transparent);
         }
         .tarjeta-doc:hover {
-            border-color:rgba(0,184,255,.5);
-            box-shadow:0 0 32px rgba(0,184,255,.1), 0 16px 44px rgba(0,0,0,.4);
+            border-color:rgba(0,184,255,.55);
+            box-shadow:0 0 32px rgba(0,184,255,.12), 0 16px 44px rgba(0,0,0,.4);
         }
 
-        /* Layout interno horizontal para la monografía */
+        /* Layout interno vertical — igual que el resto de tarjetas */
         .doc-inner {
             display:flex;
-            align-items:center;
-            gap:28px;
-            padding:24px 28px;
-            flex-wrap:wrap;
+            flex-direction:column;
+            height:100%;
         }
+
+        /* Cabecera igual que .t-head pero en azul */
+        .doc-head {
+            padding:18px 20px 13px;
+            display:flex; align-items:flex-start; justify-content:space-between;
+            border-bottom:1px solid rgba(0,184,255,.1);
+        }
+        .doc-meta { display:flex; flex-direction:column; gap:2px; }
 
         /* Ícono grande de documento */
         .doc-icon-wrap {
             flex-shrink:0;
-            width:64px; height:64px;
-            border-radius:14px;
-            background:rgba(0,184,255,.08);
-            border:1px solid rgba(0,184,255,.2);
+            width:44px; height:44px;
+            border-radius:10px;
+            background:rgba(0,184,255,.1);
+            border:1px solid rgba(0,184,255,.25);
             display:flex; align-items:center; justify-content:center;
-            font-size:2rem;
+            font-size:1.4rem;
             transition:transform .28s, background .28s;
         }
         .tarjeta-doc:hover .doc-icon-wrap {
-            transform:scale(1.06);
-            background:rgba(0,184,255,.14);
+            transform:scale(1.08) rotate(-5deg);
+            background:rgba(0,184,255,.18);
         }
 
-        /* Info de la monografía */
-        .doc-info { flex:1; min-width:180px; display:flex; flex-direction:column; gap:5px; }
         .doc-badge {
-            display:inline-flex; align-items:center; gap:6px;
-            font-family:'DM Mono',monospace; font-size:.6rem;
-            letter-spacing:.18em; text-transform:uppercase;
-            color:var(--acento2); opacity:.75;
+            font-family:'DM Mono',monospace; font-size:.58rem;
+            letter-spacing:.2em; text-transform:uppercase;
+            color:var(--acento2); opacity:.7;
         }
-        .doc-badge::before {
-            content:''; width:4px; height:4px; border-radius:50%;
-            background:var(--acento2); opacity:.8;
-        }
-        .doc-titulo { font-size:1.18rem; font-weight:700; color:#fff; letter-spacing:-.01em; }
-        .doc-desc { font-size:.82rem; color:var(--texto-dim); line-height:1.5; margin-top:2px; }
+        .doc-titulo { font-size:1.15rem; font-weight:600; color:#fff; letter-spacing:-.01em; }
+        .doc-subtitle { font-family:'DM Mono',monospace; font-size:.6rem; color:var(--texto-dim); margin-top:2px; }
 
-        /* Tipo de archivo */
+        /* Cuerpo */
+        .doc-body {
+            padding:14px 20px 20px;
+            flex-grow:1;
+            display:flex; flex-direction:column; gap:12px;
+        }
+        .doc-desc { font-size:.82rem; color:var(--texto-mid); line-height:1.55; }
+
+        /* Tipo de archivo pill */
         .doc-filetype {
-            display:inline-flex; align-items:center; gap:6px;
-            font-family:'DM Mono',monospace; font-size:.65rem;
-            color:rgba(0,184,255,.65); margin-top:4px;
-            letter-spacing:.04em;
+            display:inline-flex; align-items:center; gap:7px;
+            font-family:'DM Mono',monospace; font-size:.62rem;
+            color:rgba(0,184,255,.6);
+            letter-spacing:.03em;
+            background:rgba(0,184,255,.06);
+            border:1px solid rgba(0,184,255,.15);
+            padding:4px 10px; border-radius:6px;
+            width:fit-content;
         }
-        .doc-filetype::before {
-            content:''; width:10px; height:12px;
-            background:rgba(0,184,255,.3);
-            border-radius:2px;
-            display:inline-block;
-        }
+        .doc-filetype svg { width:11px; height:11px; opacity:.7; flex-shrink:0; }
 
-        /* Botón de descarga */
-        .doc-actions { flex-shrink:0; }
+        /* Botón de descarga — ocupa todo el ancho */
         .btn-download {
-            display:inline-flex; align-items:center; gap:9px;
-            padding:11px 22px;
+            display:flex; align-items:center; justify-content:center; gap:9px;
+            padding:11px 18px;
             background:rgba(0,184,255,.1);
-            border:1px solid rgba(0,184,255,.3);
+            border:1px solid rgba(0,184,255,.28);
             border-radius:9px;
-            color:rgba(0,184,255,.9);
+            color:rgba(0,184,255,.92);
             text-decoration:none;
             font-family:'Space Grotesk',sans-serif;
-            font-size:.88rem; font-weight:600;
+            font-size:.87rem; font-weight:600;
             transition:all .22s ease;
-            white-space:nowrap;
+            margin-top:auto;
         }
         .btn-download:hover {
             background:rgba(0,184,255,.18);
@@ -263,7 +267,7 @@
             transform:translateY(-2px);
             box-shadow:0 8px 24px rgba(0,184,255,.15);
         }
-        .btn-download svg { width:16px; height:16px; opacity:.8; flex-shrink:0; }
+        .btn-download svg { width:15px; height:15px; opacity:.8; flex-shrink:0; }
 
         /* ══════════════════════════
            FOOTER
@@ -297,9 +301,6 @@
         @media(max-width:600px){
             .f-content{flex-direction:column;align-items:center;text-align:center}
             .f-right{align-items:center}
-            .doc-inner{flex-direction:column; align-items:flex-start}
-            .doc-actions{width:100%}
-            .btn-download{width:100%; justify-content:center}
         }
     </style>
 </head>
@@ -485,26 +486,34 @@
                         </div>
                     </div>
 
-                    <!-- ACTIVIDAD 6 — Monografía (tarjeta especial ancha) -->
+                    <!-- ACTIVIDAD 6 — Monografía -->
                     <div class="tarjeta tarjeta-doc" style="animation-delay:.26s">
                         <div class="doc-inner">
 
-                            <!-- Ícono documento -->
-                            <div class="doc-icon-wrap">📄</div>
-
-                            <!-- Info -->
-                            <div class="doc-info">
-                                <span class="doc-badge">Actividad 06 · Monografía</span>
-                                <h2 class="doc-titulo">Curvas y Mallas</h2>
-                                <p class="doc-desc">
-                                    Investigación académica sobre curvas paramétricas, splines y mallas poligonales
-                                    aplicadas a la computación gráfica.
-                                </p>
-                                <span class="doc-filetype">Curvas Mallas monografia.docx</span>
+                            <!-- Cabecera igual que otras tarjetas -->
+                            <div class="doc-head">
+                                <div class="doc-meta">
+                                    <span class="doc-badge">Actividad 06</span>
+                                    <h2 class="doc-titulo">Actividad 6</h2>
+                                    <span class="doc-subtitle">1 documento</span>
+                                </div>
+                                <div class="doc-icon-wrap">📄</div>
                             </div>
 
-                            <!-- Botón descarga -->
-                            <div class="doc-actions">
+                            <!-- Cuerpo -->
+                            <div class="doc-body">
+                                <p class="doc-desc">
+                                    Monografía sobre curvas paramétricas, splines y mallas poligonales en computación gráfica.
+                                </p>
+
+                                <span class="doc-filetype">
+                                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="1.5" y="1" width="7" height="10" rx="1.5"/>
+                                        <path d="M3.5 4h4M3.5 6.5h4M3.5 9h2.5"/>
+                                    </svg>
+                                    Curvas Mallas monografia.docx
+                                </span>
+
                                 <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx"
                                    download
                                    class="btn-download">

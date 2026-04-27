@@ -246,28 +246,93 @@
         }
         .doc-filetype svg { width:11px; height:11px; opacity:.7; flex-shrink:0; }
 
-        /* Botón de descarga — ocupa todo el ancho */
-        .btn-download {
-            display:flex; align-items:center; justify-content:center; gap:9px;
-            padding:11px 18px;
-            background:rgba(0,184,255,.1);
-            border:1px solid rgba(0,184,255,.28);
+        /* Botones doc — fila de acciones */
+        .doc-actions { display:flex; gap:8px; margin-top:auto; }
+
+        /* Botón principal: VER */
+        .btn-view-doc {
+            flex:1;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            padding:11px 14px;
+            background:rgba(0,184,255,.12);
+            border:1px solid rgba(0,184,255,.32);
             border-radius:9px;
-            color:rgba(0,184,255,.92);
-            text-decoration:none;
+            color:rgba(0,184,255,.95);
             font-family:'Space Grotesk',sans-serif;
             font-size:.87rem; font-weight:600;
+            cursor:pointer;
             transition:all .22s ease;
-            margin-top:auto;
         }
-        .btn-download:hover {
-            background:rgba(0,184,255,.18);
-            border-color:rgba(0,184,255,.55);
+        .btn-view-doc:hover {
+            background:rgba(0,184,255,.22);
+            border-color:rgba(0,184,255,.6);
             color:#fff;
             transform:translateY(-2px);
-            box-shadow:0 8px 24px rgba(0,184,255,.15);
+            box-shadow:0 8px 24px rgba(0,184,255,.18);
         }
-        .btn-download svg { width:15px; height:15px; opacity:.8; flex-shrink:0; }
+        .btn-view-doc svg { width:15px; height:15px; opacity:.85; flex-shrink:0; }
+
+        /* Botón secundario: DESCARGAR (icono solo) */
+        .btn-dl-sm {
+            display:flex; align-items:center; justify-content:center;
+            width:42px; flex-shrink:0;
+            background:rgba(255,255,255,.05);
+            border:1px solid rgba(255,255,255,.1);
+            border-radius:9px;
+            color:rgba(255,255,255,.45);
+            text-decoration:none;
+            transition:all .22s ease;
+        }
+        .btn-dl-sm:hover {
+            background:rgba(255,255,255,.1);
+            border-color:rgba(255,255,255,.25);
+            color:rgba(255,255,255,.85);
+        }
+        .btn-dl-sm svg { width:15px; height:15px; }
+
+        /* Visor de documento (modal) */
+        #doc-visor {
+            position:fixed; inset:0;
+            background:rgba(6,14,22,.97);
+            z-index:99998;
+            display:none; flex-direction:column;
+            backdrop-filter:blur(10px);
+        }
+        .doc-visor-head {
+            background:var(--base);
+            padding:12px 22px;
+            display:flex; align-items:center; justify-content:space-between;
+            border-bottom:1px solid rgba(255,255,255,.07);
+            flex-shrink:0;
+        }
+        .doc-visor-title {
+            font-family:'DM Mono',monospace;
+            font-size:.72rem; letter-spacing:.1em;
+            color:rgba(0,184,255,.8);
+        }
+        .doc-visor-title strong { color:#fff; font-weight:600; font-family:'Space Grotesk',sans-serif; font-size:.9rem; letter-spacing:0; }
+        .doc-visor-actions { display:flex; gap:8px; align-items:center; }
+        .btn-close-doc {
+            background:transparent; color:rgba(255,255,255,.45);
+            border:1px solid rgba(255,255,255,.1);
+            padding:7px 17px; border-radius:7px;
+            font-family:'Space Grotesk',sans-serif; font-size:.875rem; font-weight:500;
+            cursor:pointer; transition:all .22s;
+        }
+        .btn-close-doc:hover { border-color:var(--acento2); color:var(--acento2); background:rgba(0,184,255,.07); }
+        #doc-frame {
+            flex-grow:1; border:none; width:100%;
+            background:#f4f4f4;
+        }
+        /* Aviso si no carga */
+        .doc-fallback {
+            display:none;
+            flex-direction:column; align-items:center; justify-content:center;
+            gap:16px; padding:3rem; text-align:center;
+            color:var(--texto-dim);
+        }
+        .doc-fallback.show { display:flex; }
+        .doc-fallback p { max-width:420px; line-height:1.6; font-size:.9rem; }
 
         /* ══════════════════════════
            FOOTER
@@ -514,15 +579,21 @@
                                     Curvas Mallas monografia.docx
                                 </span>
 
-                                <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx"
-                                   download
-                                   class="btn-download">
-                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M8 2v8M5 7l3 3 3-3"/>
-                                        <path d="M2 13h12"/>
-                                    </svg>
-                                    Descargar monografía
-                                </a>
+                                <div class="doc-actions">
+                                    <button class="btn-view-doc" onclick="abrirDocumento()">
+                                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/>
+                                            <circle cx="8" cy="8" r="2"/>
+                                        </svg>
+                                        Ver monografía
+                                    </button>
+                                    <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx"
+                                       download class="btn-dl-sm" title="Descargar .docx">
+                                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 13h12"/>
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
 
                         </div>
@@ -649,7 +720,52 @@
         slides[cur2].classList.add('active');
         vids[cur2].play().catch(()=>{});
     }, 5000);
+
+    /* VISOR DOCUMENTO — Microsoft Office Online Viewer */
+    // Reemplaza esta URL con la URL pública de tu GitHub Pages
+    // Ejemplo: 'https://sebaszzby.github.io/Computacion_grafica/Ejercicios/Actividad%206/Curvas%20Mallas%20monografia.docx'
+    const DOC_URL = encodeURIComponent(
+        window.location.origin + window.location.pathname.replace('index.html','') +
+        'Ejercicios/Actividad 6/Curvas Mallas monografia.docx'
+    );
+    const OFFICE_VIEWER = `https://view.officeapps.live.com/op/embed.aspx?src=${DOC_URL}`;
+
+    function abrirDocumento() {
+        const docVisor = document.getElementById('doc-visor');
+        const docFrame = document.getElementById('doc-frame');
+        docFrame.src = OFFICE_VIEWER;
+        docVisor.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarDocumento() {
+        const docVisor = document.getElementById('doc-visor');
+        const docFrame = document.getElementById('doc-frame');
+        docVisor.style.display = 'none';
+        docFrame.src = '';
+        document.body.style.overflow = '';
+    }
     </script>
+
+    <!-- VISOR DOCUMENTO -->
+    <div id="doc-visor">
+        <div class="doc-visor-head">
+            <div>
+                <div class="doc-visor-title">Actividad 06 · Monografía</div>
+                <strong style="display:block;margin-top:1px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600">Curvas y Mallas</strong>
+            </div>
+            <div class="doc-visor-actions">
+                <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx"
+                   download
+                   class="btn-close-doc"
+                   style="text-decoration:none;border-color:rgba(0,184,255,.3);color:rgba(0,184,255,.8)">
+                    ↓ Descargar
+                </a>
+                <button class="btn-close-doc" onclick="cerrarDocumento()">✕ Cerrar</button>
+            </div>
+        </div>
+        <iframe id="doc-frame" src="" allowfullscreen></iframe>
+    </div>
 
 </body>
 </html>

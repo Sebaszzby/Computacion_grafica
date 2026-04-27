@@ -721,28 +721,61 @@
         vids[cur2].play().catch(()=>{});
     }, 5000);
 
-    /* VISOR DOCUMENTO — Microsoft Office Online Viewer */
-    // Reemplaza esta URL con la URL pública de tu GitHub Pages
-    // Ejemplo: 'https://sebaszzby.github.io/Computacion_grafica/Ejercicios/Actividad%206/Curvas%20Mallas%20monografia.docx'
-    const DOC_URL = encodeURIComponent(
-        window.location.origin + window.location.pathname.replace('index.html','') +
-        'Ejercicios/Actividad 6/Curvas Mallas monografia.docx'
-    );
-    const OFFICE_VIEWER = `https://view.officeapps.live.com/op/embed.aspx?src=${DOC_URL}`;
+    /* VISOR DOCUMENTO — Microsoft Office Online Viewer
+       Construye la URL absoluta del .docx dinámicamente desde la ubicación actual.
+       Funciona tanto en GitHub Pages como en cualquier servidor. */
+    function getDocURL() {
+        // Tomamos href completo (ej: https://sebaszzby.github.io/Repo/index.html)
+        // y reemplazamos el filename final por la ruta del doc
+        const base = window.location.href
+            .split('?')[0]          // quita query strings
+            .replace(/#.*$/, '')    // quita hash
+            .replace(/\/[^/]*$/, '/'); // quita el último segmento (index.html o nada)
+        const docPath = base + 'Ejercicios/Actividad%206/Curvas%20Mallas%20monografia.docx';
+        return docPath;
+    }
 
     function abrirDocumento() {
         const docVisor = document.getElementById('doc-visor');
         const docFrame = document.getElementById('doc-frame');
-        docFrame.src = OFFICE_VIEWER;
+        const docURL   = getDocURL();
+        const viewer   = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(docURL);
+
+        // Muestra la URL en consola para verificar
+        console.log('[Doc viewer] URL del documento:', docURL);
+        console.log('[Doc viewer] Viewer URL:', viewer);
+
+        docFrame.src = viewer;
         docVisor.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+
+        // Muestra URL en panel de debug por si falla
+        const dbg = document.getElementById('doc-url-debug');
+        if (dbg) dbg.textContent = '📋 URL: ' + docURL + ' (clic para copiar)';
+
+        // Mensaje de error si tarda demasiado (Office Online tarda ~5s en cargar)
+        clearTimeout(docVisor._errTimer);
+        document.getElementById('doc-error').style.display = 'none';
+        docVisor._errTimer = setTimeout(() => {
+            // Solo muestra error si el iframe aún no cargó contenido útil
+            try {
+                const iDoc = docFrame.contentDocument || docFrame.contentWindow?.document;
+                if (!iDoc || iDoc.title === '') {
+                    document.getElementById('doc-error').style.display = 'flex';
+                }
+            } catch(e) {
+                // Cross-origin = iframe sí cargó (Office Online es cross-origin), todo OK
+            }
+        }, 12000);
     }
 
     function cerrarDocumento() {
         const docVisor = document.getElementById('doc-visor');
         const docFrame = document.getElementById('doc-frame');
+        clearTimeout(docVisor._errTimer);
         docVisor.style.display = 'none';
         docFrame.src = '';
+        document.getElementById('doc-error').style.display = 'none';
         document.body.style.overflow = '';
     }
     </script>
@@ -764,8 +797,54 @@
                 <button class="btn-close-doc" onclick="cerrarDocumento()">✕ Cerrar</button>
             </div>
         </div>
-        <iframe id="doc-frame" src="" allowfullscreen></iframe>
+
+        <!-- Panel de error / instrucciones si Office Online falla -->
+        <div id="doc-error" style="display:none; position:absolute; inset:52px 0 0 0; background:var(--base); z-index:2;
+             flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:2rem; text-align:center;">
+            <div style="font-size:2.5rem">⚠️</div>
+            <div>
+                <p style="font-size:1.05rem;font-weight:600;color:#fff;margin-bottom:8px">El visualizador no pudo cargar el documento</p>
+                <p style="font-size:.85rem;color:var(--texto-dim);max-width:460px;line-height:1.6;margin:0 auto">
+                    El visor de Office Online requiere que el archivo esté en una URL pública y accesible.<br>
+                    Asegúrate de que GitHub Pages esté activo y el archivo subido correctamente.
+                </p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+                <button onclick="reintentarDoc()"
+                    style="padding:10px 20px;background:rgba(0,184,255,.12);border:1px solid rgba(0,184,255,.3);
+                           border-radius:8px;color:rgba(0,184,255,.9);font-family:'Space Grotesk',sans-serif;
+                           font-size:.875rem;font-weight:600;cursor:pointer">
+                    🔄 Reintentar
+                </button>
+                <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx" download
+                    style="padding:10px 20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+                           border-radius:8px;color:rgba(255,255,255,.7);font-family:'Space Grotesk',sans-serif;
+                           font-size:.875rem;font-weight:600;text-decoration:none">
+                    ↓ Descargar en su lugar
+                </a>
+            </div>
+            <p id="doc-url-debug" style="font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.2);
+               max-width:560px;word-break:break-all;cursor:pointer" onclick="copiarURL()"
+               title="Clic para copiar URL"></p>
+        </div>
+
+        <iframe id="doc-frame" src="" allowfullscreen
+                onload="document.getElementById('doc-error').style.display='none'"></iframe>
     </div>
+
+    <script>
+    function reintentarDoc() {
+        document.getElementById('doc-error').style.display = 'none';
+        const docFrame = document.getElementById('doc-frame');
+        const src = docFrame.src;
+        docFrame.src = '';
+        setTimeout(() => { docFrame.src = src; }, 200);
+    }
+    function copiarURL() {
+        const txt = document.getElementById('doc-url-debug').textContent;
+        navigator.clipboard?.writeText(txt).then(() => alert('URL copiada'));
+    }
+    </script>
 
 </body>
 </html>

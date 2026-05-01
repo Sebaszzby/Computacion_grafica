@@ -1,0 +1,64 @@
+<!-- sections/modals.html — fragmento, sin <html>/<head>/<body> -->
+<!-- Contiene los dos modales ocultos: visor de ejercicios HTML y visor de documentos -->
+
+<!-- ══ MODAL: Visor de ejercicios .html ══ -->
+<div id="visor">
+    <div class="v-head">
+        <button class="btn-close" id="btn-close">← Volver al portafolio</button>
+    </div>
+    <iframe id="visor-iframe" src=""></iframe>
+</div>
+
+<!-- ══ MODAL: Visor de documentos .docx (Office Online) ══ -->
+<div id="doc-visor">
+    <div class="doc-visor-head">
+        <div>
+            <div class="doc-visor-title">Actividad 06 · Monografía</div>
+            <strong style="display:block;margin-top:1px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600">Curvas y Mallas</strong>
+        </div>
+        <div class="doc-visor-actions">
+            <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx"
+               download
+               class="btn-close-doc"
+               style="text-decoration:none;border-color:rgba(0,184,255,.3);color:rgba(0,184,255,.8)">
+                ↓ Descargar
+            </a>
+            <button class="btn-close-doc" onclick="cerrarDocumento()">✕ Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Panel de error si Office Online falla -->
+    <div id="doc-error" style="display:none; position:absolute; inset:52px 0 0 0; background:var(--base); z-index:2;
+         flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:2rem; text-align:center;">
+        <div style="font-size:2.5rem">⚠️</div>
+        <div>
+            <p style="font-size:1.05rem;font-weight:600;color:#fff;margin-bottom:8px">El visualizador no pudo cargar el documento</p>
+            <p style="font-size:.85rem;color:var(--texto-dim);max-width:460px;line-height:1.6;margin:0 auto">
+                El visor de Office Online requiere que el archivo esté en una URL pública y accesible.<br>
+                Asegúrate de que GitHub Pages esté activo y el archivo subido correctamente.
+            </p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+            <button onclick="reintentarDoc()"
+                style="padding:10px 20px;background:rgba(0,184,255,.12);border:1px solid rgba(0,184,255,.3);
+                       border-radius:8px;color:rgba(0,184,255,.9);font-family:'Space Grotesk',sans-serif;
+                       font-size:.875rem;font-weight:600;cursor:pointer">
+                🔄 Reintentar
+            </button>
+            <a href="Ejercicios/Actividad 6/Curvas Mallas monografia.docx" download
+                style="padding:10px 20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+                       border-radius:8px;color:rgba(255,255,255,.7);font-family:'Space Grotesk',sans-serif;
+                       font-size:.875rem;font-weight:600;text-decoration:none">
+                ↓ Descargar en su lugar
+            </a>
+        </div>
+        <p id="doc-url-debug"
+           style="font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(255,255,255,.2);
+                  max-width:560px;word-break:break-all;cursor:pointer"
+           onclick="copiarURL()"
+           title="Clic para copiar URL"></p>
+    </div>
+
+    <iframe id="doc-frame" src="" allowfullscreen
+            onload="document.getElementById('doc-error').style.display='none'"></iframe>
+</div>

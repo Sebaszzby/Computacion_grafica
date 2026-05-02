@@ -1,0 +1,640 @@
+<!-- ═══════════════════════════════════════════════════════
+     sections/hero.html
+     Presentación del curso — va entre header y las tarjetas
+     Holograma WebGL (Three.js) a la derecha
+     Texto + stats a la izquierda
+═══════════════════════════════════════════════════════ -->
+
+<section class="hero" id="hero">
+
+    <!-- ── LADO IZQUIERDO: Texto del curso ── -->
+    <div class="hero-text">
+
+        <div class="hero-eyebrow">
+            <span class="hero-dot"></span>
+            <span class="hero-eyebrow-label">Noveno Ciclo · 2026</span>
+        </div>
+
+        <h2 class="hero-title">
+            Computación<br>
+            <span class="hero-title-accent">Gráfica</span>
+        </h2>
+
+        <p class="hero-desc">
+            Curso de Ingeniería de Sistemas orientado al estudio de algoritmos,
+            transformaciones geométricas y renderizado en tiempo real mediante
+            <strong>WebGL</strong>, <strong>Three.js</strong> y técnicas de
+            rasterización clásica.
+        </p>
+
+        <!-- Stats del curso -->
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="11">0</span>
+                <span class="hero-stat-label">Ejercicios</span>
+            </div>
+            <div class="hero-stat-div"></div>
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="3">0</span>
+                <span class="hero-stat-label">Clases</span>
+            </div>
+            <div class="hero-stat-div"></div>
+            <div class="hero-stat">
+                <span class="hero-stat-num" data-target="3">0</span>
+                <span class="hero-stat-label">Actividades</span>
+            </div>
+        </div>
+
+        <!-- Tags de tecnologías -->
+        <div class="hero-tags">
+            <span class="hero-tag">WebGL 2</span>
+            <span class="hero-tag">Three.js</span>
+            <span class="hero-tag">GLSL</span>
+            <span class="hero-tag">gl-matrix</span>
+            <span class="hero-tag">Bresenham</span>
+        </div>
+
+    </div>
+
+    <!-- ── LADO DERECHO: Holograma 3D ── -->
+    <div class="hero-hologram" id="hero-hologram">
+        <canvas id="holo-canvas"></canvas>
+        <!-- Anillos decorativos -->
+        <div class="holo-ring holo-ring-1"></div>
+        <div class="holo-ring holo-ring-2"></div>
+        <div class="holo-ring holo-ring-3"></div>
+        <!-- Etiqueta flotante -->
+        <div class="holo-label">
+            <span class="holo-label-dot"></span>
+            <span class="holo-label-text">render · loop activo</span>
+        </div>
+        <!-- Datos flotantes tipo HUD -->
+        <div class="holo-hud holo-hud-tl">X: <span id="hud-x">0.00</span></div>
+        <div class="holo-hud holo-hud-tr">Y: <span id="hud-y">0.00</span></div>
+        <div class="holo-hud holo-hud-bl">Z: <span id="hud-z">0.00</span></div>
+        <div class="holo-hud holo-hud-br">FPS: <span id="hud-fps">60</span></div>
+    </div>
+
+</section>
+
+<!-- ── ESTILOS DE LA SECCIÓN ── -->
+<style>
+/* ─── HERO SECTION ───────────────────────────────────────── */
+.hero {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 24px 4rem;
+    min-height: 80vh;
+}
+
+/* ─── TEXTO IZQUIERDO ────────────────────────────────────── */
+.hero-text {
+    flex: 1;
+    max-width: 520px;
+    animation: heroFadeLeft .8s cubic-bezier(.22,1,.36,1) .2s both;
+}
+
+@keyframes heroFadeLeft {
+    from { opacity:0; transform:translateX(-28px); }
+    to   { opacity:1; transform:none; }
+}
+
+.hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.2rem;
+}
+
+.hero-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--acento);
+    box-shadow: 0 0 10px var(--acento);
+    animation: heroPulse 2.2s infinite;
+}
+
+@keyframes heroPulse {
+    0%,100% { opacity:1; box-shadow:0 0 10px var(--acento); }
+    50%      { opacity:.35; box-shadow:0 0 4px var(--acento); }
+}
+
+.hero-eyebrow-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--acento);
+    opacity: .75;
+}
+
+.hero-title {
+    font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -.03em;
+    color: #fff;
+    margin-bottom: 1.4rem;
+}
+
+.hero-title-accent {
+    background: linear-gradient(135deg, var(--acento) 0%, var(--acento2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-desc {
+    font-size: .95rem;
+    color: var(--texto-mid);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 420px;
+}
+
+.hero-desc strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Stats */
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    margin-bottom: 2rem;
+}
+
+.hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.hero-stat-num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.hero-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--texto-dim);
+}
+
+.hero-stat-div {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,.1);
+    flex-shrink: 0;
+}
+
+/* Tech tags */
+.hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .08em;
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: rgba(0,229,160,.07);
+    border: 1px solid rgba(0,229,160,.18);
+    color: rgba(0,229,160,.8);
+    transition: background .22s, border-color .22s, color .22s;
+}
+
+.hero-tag:hover {
+    background: rgba(0,229,160,.14);
+    border-color: rgba(0,229,160,.4);
+    color: var(--acento);
+}
+
+/* ─── HOLOGRAMA DERECHO ──────────────────────────────────── */
+.hero-hologram {
+    flex-shrink: 0;
+    position: relative;
+    width: min(420px, 44vw);
+    height: min(420px, 44vw);
+    animation: heroFadeRight .8s cubic-bezier(.22,1,.36,1) .35s both;
+}
+
+@keyframes heroFadeRight {
+    from { opacity:0; transform:translateX(28px); }
+    to   { opacity:1; transform:none; }
+}
+
+#holo-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Anillos decorativos */
+.holo-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(0,229,160,.18);
+    pointer-events: none;
+}
+
+.holo-ring-1 {
+    inset: -16px;
+    animation: holoSpin 12s linear infinite;
+    border-color: rgba(0,229,160,.22);
+    border-style: dashed;
+}
+
+.holo-ring-2 {
+    inset: -32px;
+    animation: holoSpin 20s linear infinite reverse;
+    border-color: rgba(0,184,255,.14);
+}
+
+.holo-ring-3 {
+    inset: -52px;
+    animation: holoSpin 32s linear infinite;
+    border-color: rgba(0,229,160,.07);
+    border-style: dotted;
+}
+
+@keyframes holoSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Glow de fondo del holograma */
+.hero-hologram::before {
+    content: '';
+    position: absolute;
+    inset: -60px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+        rgba(0,229,160,.1) 0%,
+        rgba(0,184,255,.06) 40%,
+        transparent 70%
+    );
+    z-index: -1;
+    animation: holoGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes holoGlow {
+    from { opacity: .6; transform: scale(.95); }
+    to   { opacity: 1;  transform: scale(1.05); }
+}
+
+/* Etiqueta flotante */
+.holo-label {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(10,21,32,.85);
+    border: 1px solid rgba(0,229,160,.2);
+    border-radius: 100px;
+    padding: 5px 14px;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+}
+
+.holo-label-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--acento);
+    box-shadow: 0 0 6px var(--acento);
+    animation: heroPulse 1.8s infinite;
+}
+
+.holo-label-text {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    color: rgba(0,229,160,.75);
+    letter-spacing: .08em;
+}
+
+/* Datos HUD flotantes */
+.holo-hud {
+    position: absolute;
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem;
+    color: rgba(0,229,160,.5);
+    letter-spacing: .06em;
+    white-space: nowrap;
+}
+
+.holo-hud-tl { top: 8px;    left: 8px; }
+.holo-hud-tr { top: 8px;    right: 8px; text-align: right; }
+.holo-hud-bl { bottom: 24px; left: 8px; }
+.holo-hud-br { bottom: 24px; right: 8px; text-align: right; }
+
+/* Separador inferior de la sección hero */
+.hero-divider {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 2rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.hero-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,255,255,.06), transparent);
+}
+
+.hero-divider-diamond {
+    width: 5px; height: 5px;
+    border: 1px solid rgba(0,229,160,.3);
+    transform: rotate(45deg);
+    background: rgba(0,229,160,.08);
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        padding: 3rem 24px 2rem;
+        min-height: auto;
+        gap: 2.5rem;
+    }
+    .hero-hologram {
+        width: min(280px, 80vw);
+        height: min(280px, 80vw);
+        order: -1;
+    }
+    .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+}
+</style>
+
+<!-- ── THREE.JS HOLOGRAMA ── -->
+<script>
+(function() {
+    /* Esperamos a que Three.js esté disponible */
+    function initHolo() {
+        const canvas  = document.getElementById('holo-canvas');
+        if (!canvas) return;
+
+        const W = canvas.offsetWidth  || 420;
+        const H = canvas.offsetHeight || 420;
+
+        /* ── RENDERER ── */
+        const renderer = new THREE.WebGLRenderer({
+            canvas,
+            antialias: true,
+            alpha: true,
+        });
+        renderer.setSize(W, H);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+
+        /* ── SCENE + CAMERA ── */
+        const scene  = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+        camera.position.set(0, 0, 3.8);
+
+        /* ── LUCES ── */
+        scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+
+        const light1 = new THREE.PointLight(0x00e5a0, 3, 12);
+        light1.position.set(2, 2, 2);
+        scene.add(light1);
+
+        const light2 = new THREE.PointLight(0x00b8ff, 2, 10);
+        light2.position.set(-2, -1, 1);
+        scene.add(light2);
+
+        const light3 = new THREE.PointLight(0xffffff, 1, 8);
+        light3.position.set(0, 3, -1);
+        scene.add(light3);
+
+        /* ── MATERIAL HOLOGRÁFICO ── */
+        const holoMat = new THREE.MeshStandardMaterial({
+            color: 0x00e5a0,
+            emissive: 0x00e5a0,
+            emissiveIntensity: 0.25,
+            metalness: 0.85,
+            roughness: 0.1,
+            wireframe: false,
+            transparent: true,
+            opacity: 0.88,
+        });
+
+        const wireMat = new THREE.MeshBasicMaterial({
+            color: 0x00e5a0,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.12,
+        });
+
+        /* ── FIGURAS — se ciclan cada N segundos ── */
+        const SHAPES = [
+            () => new THREE.IcosahedronGeometry(1, 1),
+            () => new THREE.OctahedronGeometry(1, 0),
+            () => new THREE.TorusKnotGeometry(.7, .28, 120, 16),
+            () => new THREE.DodecahedronGeometry(1, 0),
+            () => new THREE.TorusGeometry(.85, .32, 24, 64),
+        ];
+
+        let shapeIdx  = 0;
+        let mainMesh  = null;
+        let wireMesh  = null;
+        let morphing  = false;
+
+        function buildShape(idx) {
+            const geo  = SHAPES[idx]();
+            const mesh = new THREE.Mesh(geo, holoMat.clone());
+            const wire = new THREE.Mesh(geo, wireMat.clone());
+            return { mesh, wire };
+        }
+
+        function spawnShape(idx, fadeIn = true) {
+            /* Remover anteriores */
+            if (mainMesh) scene.remove(mainMesh);
+            if (wireMesh) scene.remove(wireMesh);
+
+            const { mesh, wire } = buildShape(idx);
+            mainMesh = mesh;
+            wireMesh = wire;
+
+            if (fadeIn) {
+                mainMesh.material.opacity = 0;
+                wireMesh.material.opacity = 0;
+            }
+
+            scene.add(mainMesh);
+            scene.add(wireMesh);
+        }
+
+        spawnShape(0, false);
+
+        /* Ciclo de figuras cada 4.5 s */
+        setInterval(() => {
+            if (morphing) return;
+            morphing  = true;
+            shapeIdx  = (shapeIdx + 1) % SHAPES.length;
+
+            /* Fade out de la figura actual */
+            let fadeOut = 1;
+            const outIv = setInterval(() => {
+                fadeOut -= 0.06;
+                if (mainMesh) mainMesh.material.opacity = Math.max(fadeOut * 0.88, 0);
+                if (wireMesh) wireMesh.material.opacity = Math.max(fadeOut * 0.12, 0);
+                if (fadeOut <= 0) {
+                    clearInterval(outIv);
+                    spawnShape(shapeIdx, true);
+                    /* Fade in de la nueva */
+                    let fadeIn = 0;
+                    const inIv = setInterval(() => {
+                        fadeIn += 0.06;
+                        if (mainMesh) mainMesh.material.opacity = Math.min(fadeIn * 0.88, 0.88);
+                        if (wireMesh) wireMesh.material.opacity = Math.min(fadeIn * 0.12, 0.12);
+                        if (fadeIn >= 1) { clearInterval(inIv); morphing = false; }
+                    }, 20);
+                }
+            }, 20);
+        }, 4500);
+
+        /* ── PARTÍCULAS FLOTANTES ── */
+        const partCount = 80;
+        const partGeo   = new THREE.BufferGeometry();
+        const positions = new Float32Array(partCount * 3);
+        for (let i = 0; i < partCount; i++) {
+            positions[i * 3]     = (Math.random() - .5) * 5;
+            positions[i * 3 + 1] = (Math.random() - .5) * 5;
+            positions[i * 3 + 2] = (Math.random() - .5) * 5;
+        }
+        partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const partMat = new THREE.PointsMaterial({
+            color: 0x00e5a0, size: 0.028,
+            transparent: true, opacity: 0.55,
+        });
+        const particles = new THREE.Points(partGeo, partMat);
+        scene.add(particles);
+
+        /* ── GRID PLANO BAJO ── */
+        const gridHelper = new THREE.GridHelper(6, 12, 0x00e5a0, 0x0a1520);
+        gridHelper.position.y = -1.4;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.18;
+        scene.add(gridHelper);
+
+        /* ── HUD ── */
+        const hudX   = document.getElementById('hud-x');
+        const hudY   = document.getElementById('hud-y');
+        const hudZ   = document.getElementById('hud-z');
+        const hudFPS = document.getElementById('hud-fps');
+        let lastTime = performance.now();
+        let frames   = 0;
+
+        /* ── ANIMACIÓN ── */
+        let t = 0;
+        function animate(now) {
+            requestAnimationFrame(animate);
+            t += 0.006;
+
+            /* Rotación de la figura */
+            if (mainMesh) {
+                mainMesh.rotation.x = t * 0.38;
+                mainMesh.rotation.y = t * 0.55;
+                wireMesh.rotation.copy(mainMesh.rotation);
+            }
+
+            /* Oscilación vertical suave */
+            if (mainMesh) {
+                mainMesh.position.y = Math.sin(t * .8) * 0.12;
+                wireMesh.position.y = mainMesh.position.y;
+            }
+
+            /* Rotación lenta de partículas */
+            particles.rotation.y = t * 0.08;
+            particles.rotation.x = t * 0.04;
+
+            /* Luz pulsante */
+            light1.intensity = 3 + Math.sin(t * 1.5) * 0.6;
+            light2.intensity = 2 + Math.cos(t * 1.2) * 0.4;
+
+            /* HUD */
+            if (mainMesh) {
+                if (hudX) hudX.textContent = mainMesh.rotation.x.toFixed(2);
+                if (hudY) hudY.textContent = mainMesh.rotation.y.toFixed(2);
+                if (hudZ) hudZ.textContent = mainMesh.position.y.toFixed(2);
+            }
+
+            frames++;
+            if (now - lastTime >= 1000) {
+                if (hudFPS) hudFPS.textContent = frames;
+                frames = 0;
+                lastTime = now;
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate(performance.now());
+
+        /* Resize */
+        const ro = new ResizeObserver(() => {
+            const w = canvas.offsetWidth;
+            const h = canvas.offsetHeight;
+            renderer.setSize(w, h);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        });
+        ro.observe(canvas);
+    }
+
+    /* ── Counter animado para los stats ── */
+    function animateCounters() {
+        document.querySelectorAll('.hero-stat-num').forEach(el => {
+            const target = +el.dataset.target;
+            let current  = 0;
+            const step   = Math.ceil(target / 30);
+            const iv     = setInterval(() => {
+                current = Math.min(current + step, target);
+                el.textContent = current;
+                if (current >= target) clearInterval(iv);
+            }, 40);
+        });
+    }
+
+    /* ── Cargar Three.js si no está disponible ── */
+    if (typeof THREE !== 'undefined') {
+        initHolo();
+        animateCounters();
+    } else {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+        s.onload = () => { initHolo(); animateCounters(); };
+        document.head.appendChild(s);
+    }
+})();
+</script>
+
+<!-- Separador entre hero y tarjetas -->
+<div class="hero-divider">
+    <div class="hero-divider-line"></div>
+    <div class="hero-divider-diamond"></div>
+    <div class="hero-divider-line" style="background:linear-gradient(to left,rgba(255,255,255,.06),transparent)"></div>
+</div>

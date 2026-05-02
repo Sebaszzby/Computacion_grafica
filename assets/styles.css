@@ -290,17 +290,24 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
    HERO SECTION — añadir al final de styles.css
 ════════════════════════════════════════ */
 
-.hero {
+/* Wrapper full-width — bloquea el video con fondo sólido */
+.hero-bg {
     position: relative;
     z-index: 10;
+    background: var(--base);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+
+.hero {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 3rem;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 5rem 24px 4rem;
-    min-height: 80vh;
+    padding: 4rem 24px 3.5rem;
+    min-height: 75vh;
+    width: 100%;
 }
 
 /* ─── TEXTO IZQUIERDO ─── */
@@ -521,14 +528,13 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 
 /* Separador hero → contenido */
 .hero-divider {
-    position: relative;
-    z-index: 10;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px 2rem;
     display: flex;
     align-items: center;
     gap: 16px;
+    width: 100%;
 }
 .hero-divider-line {
     flex: 1; height: 1px;

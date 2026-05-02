@@ -1,9 +1,6 @@
 /* ════════════════════════════════════════
-   assets/preloader.js
-   Terminal de carga + Katana Slash épico
-   Corte diagonal top-left → bottom-right
-   con partículas, aberración cromática
-   y split cinematográfico
+   assets/preloader.js  v3
+   Terminal de carga + Katana Slash
 ════════════════════════════════════════ */
 
 const LINES = [
@@ -59,392 +56,270 @@ function showLine(idx) {
 function runPreloader(idx) {
     if (idx >= LINES.length) {
         if (cur.parentNode) cur.parentNode.removeChild(cur);
-        setTimeout(katanaTransition, 420);
+        setTimeout(katanaTransition, 440);
         return;
     }
     showLine(idx);
     setTimeout(() => runPreloader(idx + 1), LINES[idx].pause);
 }
 
-/* ══════════════════════════════════════════════════════════
-   KATANA SLASH — DIAGONAL ÉPICO
-   Timeline (ms desde inicio de katanaTransition):
-     0    → terminal fade out
-     150  → canvas SVG aparece, blade empieza sweep diagonal
-     380  → blade llega al otro extremo → impacto
-     390  → flash RGB burst (aberración cromática)
-     410  → línea de corte residual aparece con partículas
-     500  → pantalla se parte en diagonal (clip-path)
-     550  → partículas vuelan
-    1 250 → limpieza total
-══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   KATANA SLASH  v3
+   Corte: arriba-derecha (W,0) → abajo-izquierda (0,H)
+   Split: paneles se abren perpendicular al corte
+═══════════════════════════════════════════════════ */
 function katanaTransition() {
     const terminal = preEl.querySelector('.terminal');
-
-    /* ① Fade out del terminal */
-    terminal.style.transition = 'opacity .18s ease, transform .18s ease';
+    terminal.style.transition = 'opacity .16s ease, transform .16s ease';
     terminal.style.opacity    = '0';
-    terminal.style.transform  = 'scale(.97) translateY(-6px)';
+    terminal.style.transform  = 'scale(.96) translateY(-8px)';
 
     const W = window.innerWidth;
     const H = window.innerHeight;
 
-    /* ② Crear canvas SVG para el blade diagonal */
-    const svg = createSVGCanvas(W, H);
+    const svg = buildSVG(W, H);
     document.body.appendChild(svg);
 
-    /* ③ Los dos paneles de fondo */
-    const topPanel = mk('div', 'k-panel k-top');
-    const botPanel = mk('div', 'k-panel k-bot');
-    document.body.append(topPanel, botPanel);
+    /* Paneles con clip-path ya aplicado ANTES de insertar en DOM.
+       Línea de corte: (W,0) → (0,H)
+       Panel A: triángulo superior-derecho  → puntos: W,0 — W,H — 0,0  (el de arriba)
+       Panel B: triángulo inferior-izquierdo → puntos: 0,0 — W,H — 0,H (el de abajo) */
+    const panelA = mk('div', 'k-panel');
+    const panelB = mk('div', 'k-panel');
+    panelA.style.cssText = `clip-path:polygon(${W}px 0,${W}px ${H}px,0 0);height:100%;top:0;`;
+    panelB.style.cssText = `clip-path:polygon(0 0,${W}px ${H}px,0 ${H}px);height:100%;top:0;`;
+    document.body.append(panelA, panelB);
 
-    /* Ocultar preloader detrás de los paneles */
-    setTimeout(() => {
-        preEl.style.display = 'none';
-    }, 100);
+    setTimeout(() => { preEl.style.display = 'none'; }, 80);
 
-    /* ④ Animar el blade diagonal top-left → bottom-right */
+    /* Sweep del blade tras 130ms */
     setTimeout(() => {
-        animateBlade(svg, W, H, () => {
-            /* Callback: impacto */
-            onImpact(svg, W, H, topPanel, botPanel);
-        });
-    }, 150);
+        sweepBlade(svg, W, H, () => onImpact(svg, W, H, panelA, panelB));
+    }, 130);
 }
 
-/* ── BLADE SVG ── */
-function createSVGCanvas(W, H) {
+/* ── SVG canvas ── */
+function buildSVG(W, H) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    svg.style.cssText = `
-        position:fixed; inset:0; width:100%; height:100%;
-        z-index:100000; pointer-events:none; overflow:visible;
-    `;
-
-    /* Defs: filtros y gradientes */
+    svg.style.cssText = `position:fixed;inset:0;width:100%;height:100%;z-index:100000;pointer-events:none;overflow:visible;`;
     svg.innerHTML = `
         <defs>
-            <!-- Gradiente del blade: blanco→verde→blanco con alpha -->
-            <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stop-color="#00e5a0" stop-opacity="0"/>
-                <stop offset="15%"  stop-color="#00e5a0" stop-opacity="0.3"/>
-                <stop offset="40%"  stop-color="#ffffff" stop-opacity="0.9"/>
-                <stop offset="52%"  stop-color="#00e5a0" stop-opacity="1"/>
-                <stop offset="64%"  stop-color="#ffffff" stop-opacity="0.9"/>
-                <stop offset="85%"  stop-color="#00e5a0" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#00e5a0" stop-opacity="0"/>
-            </linearGradient>
-
-            <!-- Glow filter para el blade -->
-            <filter id="bladeGlow" x="-50%" y="-500%" width="200%" height="1100%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1"/>
-                <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur2"/>
-                <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur3"/>
+            <filter id="kglow" x="-80%" y="-500%" width="260%" height="1100%">
+                <feGaussianBlur stdDeviation="3"  result="b1"/>
+                <feGaussianBlur stdDeviation="10" result="b2"/>
+                <feGaussianBlur stdDeviation="22" result="b3"/>
                 <feMerge>
-                    <feMergeNode in="blur3"/>
-                    <feMergeNode in="blur2"/>
-                    <feMergeNode in="blur1"/>
+                    <feMergeNode in="b3"/>
+                    <feMergeNode in="b2"/>
+                    <feMergeNode in="b1"/>
                     <feMergeNode in="SourceGraphic"/>
                 </feMerge>
             </filter>
-
-            <!-- Clip path diagonal — panel superior -->
-            <clipPath id="clipTop">
-                <polygon id="clipTopPoly" points="0,0 ${W},0 ${W},${H} 0,${H}"/>
-            </clipPath>
+            <linearGradient id="bgrad" gradientUnits="userSpaceOnUse"
+                x1="0" y1="${H+80}" x2="${W+160}" y2="-100">
+                <stop offset="0%"   stop-color="#00e5a0" stop-opacity="0"/>
+                <stop offset="18%"  stop-color="#00e5a0" stop-opacity="0.25"/>
+                <stop offset="44%"  stop-color="#b0fff0" stop-opacity="0.85"/>
+                <stop offset="52%"  stop-color="#ffffff" stop-opacity="1"/>
+                <stop offset="60%"  stop-color="#b0fff0" stop-opacity="0.85"/>
+                <stop offset="82%"  stop-color="#00e5a0" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#00e5a0" stop-opacity="0"/>
+            </linearGradient>
         </defs>
-
-        <!-- Grupo del blade (empieza invisible, fuera de vista) -->
-        <g id="bladeGroup" opacity="0">
-            <!-- Glow exterior amplio -->
-            <line id="bladeGlow1"
-                x1="-200" y1="-120" x2="-200" y2="-120"
-                stroke="rgba(0,229,160,0.18)" stroke-width="28"
-                filter="url(#bladeGlow)" stroke-linecap="round"/>
-            <!-- Glow medio -->
-            <line id="bladeGlow2"
-                x1="-200" y1="-120" x2="-200" y2="-120"
-                stroke="rgba(0,229,160,0.45)" stroke-width="10"
-                filter="url(#bladeGlow)" stroke-linecap="round"/>
-            <!-- Core del blade -->
-            <line id="bladeLine"
-                x1="-200" y1="-120" x2="-200" y2="-120"
-                stroke="url(#bladeGrad)" stroke-width="2.5"
-                stroke-linecap="round"/>
+        <g id="blade" opacity="0" filter="url(#kglow)">
+            <line id="bOuter" stroke="rgba(0,229,160,.2)"  stroke-width="30" stroke-linecap="round"/>
+            <line id="bMid"   stroke="rgba(0,229,160,.5)"  stroke-width="9"  stroke-linecap="round"/>
+            <line id="bCore"  stroke="url(#bgrad)"         stroke-width="2"  stroke-linecap="round"/>
         </g>
-
-        <!-- Línea de corte residual (invisible hasta el impacto) -->
-        <line id="cutLine"
-            x1="0" y1="0" x2="${W}" y2="${H}"
-            stroke="rgba(0,229,160,0)" stroke-width="1"
-            stroke-linecap="round"/>
-
-        <!-- Grupo de partículas -->
-        <g id="particles"></g>
+        <line id="cutLine" x1="${W}" y1="0" x2="0" y2="${H}"
+              stroke="transparent" stroke-width="0" stroke-linecap="round"/>
+        <g id="sparks"></g>
     `;
-
     return svg;
 }
 
-function animateBlade(svg, W, H, onDone) {
-    const bladeGroup = svg.querySelector('#bladeGroup');
-    const glow1      = svg.querySelector('#bladeGlow1');
-    const glow2      = svg.querySelector('#bladeGlow2');
-    const bladeLine  = svg.querySelector('#bladeLine');
+/* ── Sweep del blade de arriba-derecha hacia abajo-izquierda ── */
+function sweepBlade(svg, W, H, onDone) {
+    const blade  = svg.querySelector('#blade');
+    const bOuter = svg.querySelector('#bOuter');
+    const bMid   = svg.querySelector('#bMid');
+    const bCore  = svg.querySelector('#bCore');
 
-    /* El blade va de (-100, -60) → (W+100, H+60) — diagonal total */
-    const x1Start = -150, y1Start = -90;
-    const x2Start = -60,  y2Start = -30;   /* longitud inicial del blade ~90° diag */
-    const x1End   = W + 100, y1End = H + 60;
-    const x2End   = W + 190, y2End = H + 120;
+    /* Punta: parte de (W+160, -100) y llega a (-160, H+100)
+       Cola:  parte de (W+220, -140) y llega a (-80,  H+60)
+       → blade de ~220px diagonal, viajando de derecha a izquierda */
+    const TIP_S  = { x: W+160, y: -100 };  const TIP_E  = { x: -160, y: H+100 };
+    const TAIL_S = { x: W+220, y: -140 };  const TAIL_E = { x: -80,  y: H+60  };
 
-    const duration = 240; /* ms — rápido como un sable real */
-    const start    = performance.now();
+    const DUR = 200;
+    const t0  = performance.now();
+    blade.setAttribute('opacity', '1');
 
-    bladeGroup.setAttribute('opacity', '1');
-
-    function frame(now) {
-        const t = Math.min((now - start) / duration, 1);
-        /* easeInQuart: arranca un poco lento y luego golpea */
-        const e = t < 0.5
-            ? 2 * t * t
-            : 1 - Math.pow(-2 * t + 2, 2) / 2;
-
-        const cx1 = lerp(x1Start, x1End, e);
-        const cy1 = lerp(y1Start, y1End, e);
-        const cx2 = lerp(x2Start, x2End, e);
-        const cy2 = lerp(y2Start, y2End, e);
-
-        [glow1, glow2, bladeLine].forEach(el => {
-            el.setAttribute('x1', cx1); el.setAttribute('y1', cy1);
-            el.setAttribute('x2', cx2); el.setAttribute('y2', cy2);
+    (function frame(now) {
+        const t = Math.min((now - t0) / DUR, 1);
+        const tx = lerp(TIP_S.x,  TIP_E.x,  t);
+        const ty = lerp(TIP_S.y,  TIP_E.y,  t);
+        const lx = lerp(TAIL_S.x, TAIL_E.x, t);
+        const ly = lerp(TAIL_S.y, TAIL_E.y, t);
+        [bOuter, bMid, bCore].forEach(el => {
+            el.setAttribute('x1', lx); el.setAttribute('y1', ly);
+            el.setAttribute('x2', tx); el.setAttribute('y2', ty);
         });
-
-        /* Trail: la cola se desvanece */
-        const trailAlpha = 0.18 + (1 - e) * 0.12;
-        glow1.setAttribute('stroke', `rgba(0,229,160,${trailAlpha})`);
-
-        if (t < 1) {
-            requestAnimationFrame(frame);
-        } else {
-            bladeGroup.setAttribute('opacity', '0');
-            onDone();
-        }
-    }
-
-    requestAnimationFrame(frame);
+        if (t < 1) requestAnimationFrame(frame);
+        else { blade.setAttribute('opacity', '0'); onDone(); }
+    })(t0);
 }
 
-function onImpact(svg, W, H, topPanel, botPanel) {
-    /* ── FLASH RGB (aberración cromática) ── */
-    spawnFlash();
-
-    /* ── LÍNEA DE CORTE RESIDUAL ── */
-    const cutLine = svg.querySelector('#cutLine');
-    animateCutLine(cutLine, W, H);
-
-    /* ── PARTÍCULAS ── */
-    setTimeout(() => spawnParticles(svg, W, H), 60);
-
-    /* ── SCREEN SPLIT DIAGONAL ── */
-    setTimeout(() => splitScreen(topPanel, botPanel, W, H), 140);
-
-    /* ── LIMPIEZA ── */
-    setTimeout(() => {
-        svg.remove();
-        topPanel.remove();
-        botPanel.remove();
-    }, 1300);
+/* ── Impacto ── */
+function onImpact(svg, W, H, panelA, panelB) {
+    flashRGB();
+    showCutLine(svg);
+    spawnSparks(svg, W, H);
+    /* 1 frame de margen para que los clips estén pintados */
+    setTimeout(() => splitPanels(panelA, panelB, W, H), 16);
+    setTimeout(() => { svg.remove(); panelA.remove(); panelB.remove(); }, 980);
 }
 
-/* Flash con aberración cromática RGB */
-function spawnFlash() {
-    const colors = [
-        { color: 'rgba(255,50,80,0.22)',  delay: 0   },
-        { color: 'rgba(255,255,255,0.18)',delay: 30  },
-        { color: 'rgba(0,229,160,0.25)',  delay: 60  },
-        { color: 'rgba(0,184,255,0.15)',  delay: 90  },
-    ];
-
-    colors.forEach(({ color, delay }) => {
+/* ── Flash RGB ── */
+function flashRGB() {
+    [
+        { c:'rgba(255,40,80,0.18)',   d:0  },
+        { c:'rgba(255,255,255,0.12)', d:26 },
+        { c:'rgba(0,229,160,0.20)',   d:52 },
+        { c:'rgba(0,184,255,0.12)',   d:78 },
+    ].forEach(({ c, d }) => {
         setTimeout(() => {
-            const flash = document.createElement('div');
-            flash.style.cssText = `
-                position:fixed; inset:0; z-index:99997; pointer-events:none;
-                background:${color};
-                animation: kFlashBurst 0.28s ease-out forwards;
-            `;
-            document.body.appendChild(flash);
-            setTimeout(() => flash.remove(), 320);
-        }, delay);
+            const f = document.createElement('div');
+            f.style.cssText = `position:fixed;inset:0;z-index:99996;pointer-events:none;background:${c};transition:opacity .2s ease;`;
+            document.body.appendChild(f);
+            requestAnimationFrame(() => requestAnimationFrame(() => { f.style.opacity = '0'; }));
+            setTimeout(() => f.remove(), 260);
+        }, d);
     });
 }
 
-/* Línea de corte que aparece de forma progresiva y se desvanece */
-function animateCutLine(cutLine, W, H) {
-    /* Primero la hacemos visible con brillo */
-    cutLine.setAttribute('stroke', 'rgba(0,229,160,0.9)');
-    cutLine.setAttribute('stroke-width', '1.5');
-
-    /* Glow sobre el corte */
-    const glowLine = cutLine.cloneNode();
-    glowLine.setAttribute('stroke', 'rgba(0,229,160,0.3)');
-    glowLine.setAttribute('stroke-width', '12');
-    glowLine.setAttribute('filter', 'url(#bladeGlow)');
-    cutLine.parentNode.insertBefore(glowLine, cutLine);
-
-    /* Fade out progresivo */
-    let opacity = 1;
+/* ── Línea residual ── */
+function showCutLine(svg) {
+    const cl  = svg.querySelector('#cutLine');
+    const glw = cl.cloneNode();
+    glw.setAttribute('stroke', 'rgba(0,229,160,.25)');
+    glw.setAttribute('stroke-width', '14');
+    glw.setAttribute('filter', 'url(#kglow)');
+    cl.parentNode.insertBefore(glw, cl);
+    cl.setAttribute('stroke', 'rgba(200,255,245,.92)');
+    cl.setAttribute('stroke-width', '1.2');
+    let op = 1;
     const fade = setInterval(() => {
-        opacity -= 0.04;
-        if (opacity <= 0) {
-            clearInterval(fade);
-            cutLine.remove();
-            glowLine.remove();
-            return;
-        }
-        cutLine.setAttribute('stroke', `rgba(0,229,160,${opacity * 0.9})`);
-        glowLine.setAttribute('stroke', `rgba(0,229,160,${opacity * 0.25})`);
-    }, 20);
+        op -= 0.03;
+        if (op <= 0) { clearInterval(fade); cl.remove(); glw.remove(); return; }
+        cl.setAttribute('stroke',  `rgba(200,255,245,${op * .9})`);
+        glw.setAttribute('stroke', `rgba(0,229,160,${op * .22})`);
+    }, 16);
 }
 
-/* Partículas que salen del corte */
-function spawnParticles(svg, W, H) {
-    const particles = svg.querySelector('#particles');
-    const count = 28;
+/* ── Partículas a lo largo de la línea (W,0)→(0,H) ── */
+function spawnSparks(svg, W, H) {
+    const g    = svg.querySelector('#sparks');
+    const COLS = ['#00e5a0','#00b8ff','#ffffff','#7fffd4','#b0fff0'];
 
-    for (let i = 0; i < count; i++) {
-        /* Punto de origen: aleatorio a lo largo de la línea diagonal */
-        const t  = Math.random();
-        const ox = lerp(0, W, t);
-        const oy = lerp(0, H, t);
+    for (let i = 0; i < 34; i++) {
+        const t   = Math.random();
+        const ox  = W * (1 - t);
+        const oy  = H * t;
+        /* Perpendicular a (W,0)→(0,H): ángulos ≈ 45° y 225° + variación */
+        const side  = Math.random() < .5 ? 1 : -1;
+        const angle = Math.PI * .25 * side + (Math.random() - .5) * 1.6;
+        const speed = 30 + Math.random() * 100;
+        const r     = .7 + Math.random() * 2.6;
+        const col   = COLS[Math.floor(Math.random() * COLS.length)];
+        const life  = 360 + Math.random() * 440;
+        const delay = i * 9;
 
-        /* Dirección: perpendicular al corte + algo de variación */
-        const angle = (-Math.PI / 4) + (Math.random() - 0.5) * 1.8;
-        const speed = 40 + Math.random() * 120;
-        const vx    = Math.cos(angle) * speed;
-        const vy    = Math.sin(angle) * speed;
+        const p = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        p.setAttribute('cx', ox); p.setAttribute('cy', oy);
+        p.setAttribute('r', r); p.setAttribute('fill', col);
+        g.appendChild(p);
 
-        /* Tamaño y color */
-        const size   = 1 + Math.random() * 3;
-        const colors = ['#00e5a0', '#00b8ff', '#ffffff', '#7fffda'];
-        const color  = colors[Math.floor(Math.random() * colors.length)];
-        const life   = 400 + Math.random() * 400;
-
-        /* Crear partícula como círculo SVG */
-        const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        p.setAttribute('cx', ox);
-        p.setAttribute('cy', oy);
-        p.setAttribute('r', size);
-        p.setAttribute('fill', color);
-        p.setAttribute('opacity', '1');
-        particles.appendChild(p);
-
-        /* Animar con requestAnimationFrame */
-        const startTime = performance.now();
-        function animParticle(now) {
-            const elapsed = now - startTime;
-            const prog    = Math.min(elapsed / life, 1);
-            const ease    = 1 - prog * prog; /* decelera */
-
-            p.setAttribute('cx', ox + vx * prog);
-            p.setAttribute('cy', oy + vy * prog + 30 * prog * prog); /* gravedad */
-            p.setAttribute('opacity', (1 - prog) * (i % 2 === 0 ? 1 : 0.6));
-            p.setAttribute('r', size * (1 - prog * 0.5));
-
-            if (prog < 1) requestAnimationFrame(animParticle);
-            else p.remove();
-        }
-
-        /* Delay escalonado para que no salgan todas a la vez */
-        setTimeout(() => requestAnimationFrame(animParticle), i * 12);
-    }
-
-    /* Algunas "chispas" más largas tipo spark */
-    for (let i = 0; i < 8; i++) {
-        const t  = 0.3 + Math.random() * 0.4; /* centro del corte */
-        const ox = lerp(0, W, t);
-        const oy = lerp(0, H, t);
-        const angle = (-Math.PI / 4) + (Math.random() - 0.5) * 2.5;
-        const speed = 80 + Math.random() * 180;
-
-        const spark = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        spark.setAttribute('stroke', '#00e5a0');
-        spark.setAttribute('stroke-width', '1');
-        spark.setAttribute('stroke-linecap', 'round');
-        spark.setAttribute('opacity', '0.8');
-        particles.appendChild(spark);
-
-        const life   = 350 + Math.random() * 250;
-        const len    = 8 + Math.random() * 18;
-        const startT = performance.now();
-
+        const t0 = performance.now() + delay;
         setTimeout(() => {
-            function animSpark(now) {
-                const prog = Math.min((now - startT) / life, 1);
+            (function go(now) {
+                const prog = Math.min((now - t0) / life, 1);
+                if (prog < 0) { requestAnimationFrame(go); return; }
+                p.setAttribute('cx', ox + Math.cos(angle) * speed * prog);
+                p.setAttribute('cy', oy + Math.sin(angle) * speed * prog + 20 * prog * prog);
+                p.setAttribute('opacity', (1 - prog) * .95);
+                p.setAttribute('r', r * (.5 + (1 - prog) * .5));
+                if (prog < 1) requestAnimationFrame(go);
+                else p.remove();
+            })(performance.now());
+        }, delay);
+    }
+
+    /* Chispas alargadas */
+    for (let i = 0; i < 10; i++) {
+        const t     = .25 + Math.random() * .5;
+        const ox    = W * (1 - t);
+        const oy    = H * t;
+        const side  = Math.random() < .5 ? 1 : -1;
+        const angle = Math.PI * .25 * side + (Math.random() - .5) * 2.2;
+        const speed = 55 + Math.random() * 150;
+        const len   = 6 + Math.random() * 20;
+        const life  = 280 + Math.random() * 300;
+        const delay = i * 20;
+
+        const s = document.createElementNS('http://www.w3.org/2000/svg','line');
+        s.setAttribute('stroke','#00e5a0'); s.setAttribute('stroke-width','.8');
+        s.setAttribute('stroke-linecap','round');
+        g.appendChild(s);
+
+        const t0 = performance.now() + delay;
+        setTimeout(() => {
+            (function go(now) {
+                const prog = Math.min((now - t0) / life, 1);
+                if (prog < 0) { requestAnimationFrame(go); return; }
                 const x = ox + Math.cos(angle) * speed * prog;
-                const y = oy + Math.sin(angle) * speed * prog + 20 * prog * prog;
-                spark.setAttribute('x1', x);
-                spark.setAttribute('y1', y);
-                spark.setAttribute('x2', x - Math.cos(angle) * len * (1 - prog));
-                spark.setAttribute('y2', y - Math.sin(angle) * len * (1 - prog));
-                spark.setAttribute('opacity', (1 - prog) * 0.9);
-                if (prog < 1) requestAnimationFrame(animSpark);
-                else spark.remove();
-            }
-            requestAnimationFrame(animSpark);
-        }, i * 25);
+                const y = oy + Math.sin(angle) * speed * prog + 16 * prog * prog;
+                s.setAttribute('x1', x); s.setAttribute('y1', y);
+                s.setAttribute('x2', x - Math.cos(angle) * len * (1 - prog));
+                s.setAttribute('y2', y - Math.sin(angle) * len * (1 - prog));
+                s.setAttribute('opacity', (1 - prog) * .8);
+                if (prog < 1) requestAnimationFrame(go);
+                else s.remove();
+            })(performance.now());
+        }, delay);
     }
 }
 
-/* Split de pantalla en diagonal usando clip-path */
-function splitScreen(topPanel, botPanel, W, H) {
-    /* El corte es la diagonal: de (0,0) a (W,H)
-       Panel superior: triángulo superior izquierdo
-       Panel inferior: triángulo inferior derecho */
+/* ── Split perpendicular al corte ──────────────────────────
+   La diagonal va de (W,0) a (0,H) → dirección (-1,1)/√2
+   Perpendicular: (1,1)/√2
+   Panel A (arriba-der) se mueve hacia (1,-1): arriba-derecha
+   Panel B (abajo-izq)  se mueve hacia (-1,1): abajo-izquierda
+─────────────────────────────────────────────────────────── */
+function splitPanels(panelA, panelB, W, H) {
+    const dist = Math.max(W, H) * 0.58;
+    const d    = dist / Math.SQRT2;
+    const ease = 'cubic-bezier(0.52, 0, 0.08, 1)';
 
-    /* Aplicar clip-path a los paneles para que tengan forma diagonal */
-    topPanel.style.clipPath  = `polygon(0 0, ${W}px 0, 0 ${H}px)`;
-    botPanel.style.clipPath  = `polygon(${W}px 0, ${W}px ${H}px, 0 ${H}px)`;
-    topPanel.style.height    = '100%';
-    botPanel.style.height    = '100%';
-    botPanel.style.top       = '0';
+    void panelA.offsetHeight; /* forzar reflow */
 
-    /* Pequeña pausa para que el clip-path se aplique antes del movimiento */
+    panelA.style.transition = `transform 0.54s ${ease}`;
+    panelB.style.transition = `transform 0.54s ${ease}`;
+
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            /* Panel superior: sale hacia arriba-izquierda */
-            topPanel.style.transition = 'transform 0.62s cubic-bezier(0.55, 0, 0.1, 1)';
-            topPanel.style.transform  = 'translate(-8%, -8%)';
-
-            /* Panel inferior: sale hacia abajo-derecha */
-            botPanel.style.transition = 'transform 0.62s cubic-bezier(0.55, 0, 0.1, 1)';
-            botPanel.style.transform  = 'translate(8%, 8%)';
-        });
+        panelA.style.transform = `translate(${d}px, ${-d}px)`;   /* ↗ */
+        panelB.style.transform = `translate(${-d}px, ${d}px)`;   /* ↙ */
     });
 }
 
-/* ── HELPERS ── */
+/* ── Helpers ── */
 function lerp(a, b, t) { return a + (b - a) * t; }
-
 function mk(tag, cls) {
     const el = document.createElement(tag);
     el.className = cls;
     return el;
 }
 
-/* Inyectar keyframes que CSS no puede inferir sin estar en el DOM */
-(function injectKeyframes() {
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes kFlashBurst {
-            0%   { opacity: 1; }
-            100% { opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-})();
-
-/* ── START ── */
 setTimeout(() => runPreloader(0), 400);
 document.getElementById('vid0').play().catch(() => {});

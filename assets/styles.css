@@ -294,11 +294,10 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 .hero-bg {
     position: relative;
     z-index: 10;
-    /* Fondo mejorado: degradado sutil para diferenciarlo del header */
-    background: radial-gradient(ellipse at top, rgba(20, 32, 48, 0.95) 0%, var(--base) 85%);
-    border-top: 1px solid rgba(255, 255, 255, 0.02);
+    /* Fondo mejorado: gradiente azul oscuro muy sutil para separarlo del header */
+    background: linear-gradient(180deg, rgba(12, 20, 30, 0.8) 0%, var(--base) 100%);
+    border-top: 1px solid rgba(0, 184, 255, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    box-shadow: inset 0 15px 30px -15px rgba(0, 0, 0, 0.4);
 }
 
 .hero {
@@ -347,7 +346,7 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     letter-spacing: .2em;
     text-transform: uppercase;
     color: var(--acento);
-    opacity: .75;
+    opacity: .9;
 }
 
 .hero-title {
@@ -355,11 +354,12 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     font-weight: 700;
     line-height: 1.05;
     letter-spacing: -.03em;
-    color: #fff;
+    color: #ffffff;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
     margin-bottom: 1.4rem;
 }
 .hero-title-accent {
-    background: linear-gradient(135deg, var(--acento) 0%, var(--acento2) 100%);
+    background: linear-gradient(135deg, var(--acento) 0%, rgba(0,184,255,0.9) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -367,12 +367,17 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 
 .hero-desc {
     font-size: .95rem;
-    color: var(--texto-mid);
+    /* Un tono de gris ligeramente más metálico/azulado para romper la monotonía */
+    color: rgba(160, 175, 190, 0.9);
     line-height: 1.7;
     margin-bottom: 2rem;
     max-width: 420px;
 }
-.hero-desc strong { color: #fff; font-weight: 600; }
+.hero-desc strong { 
+    color: #ffffff; 
+    font-weight: 600; 
+    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
 
 /* Stats */
 .hero-stats {
@@ -385,7 +390,10 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 .hero-stat-num {
     font-size: 2rem;
     font-weight: 700;
-    color: #fff;
+    /* Le damos a los números un ligero degradado plateado para que destaquen más */
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     line-height: 1;
     font-variant-numeric: tabular-nums;
 }
@@ -394,11 +402,12 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     font-size: .62rem;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: var(--texto-dim);
+    /* Combinamos con el color secundario (cian) en vez de gris oscuro */
+    color: rgba(0, 184, 255, 0.65);
 }
 .hero-stat-div {
     width: 1px; height: 36px;
-    background: rgba(255,255,255,.1);
+    background: linear-gradient(to bottom, transparent, rgba(0,184,255,0.2), transparent);
     flex-shrink: 0;
 }
 
@@ -410,18 +419,20 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     letter-spacing: .08em;
     padding: 5px 12px;
     border-radius: 6px;
-    background: rgba(0,229,160,.07);
-    border: 1px solid rgba(0,229,160,.18);
-    color: rgba(0,229,160,.8);
-    transition: background .22s, border-color .22s, color .22s;
+    /* Pasamos los tags a tonos cian para diferenciar de los verdes del holograma */
+    background: rgba(0, 184, 255, 0.05);
+    border: 1px solid rgba(0, 184, 255, 0.15);
+    color: rgba(0, 184, 255, 0.8);
+    transition: all .3s ease;
 }
 .hero-tag:hover {
-    background: rgba(0,229,160,.14);
-    border-color: rgba(0,229,160,.4);
-    color: var(--acento);
+    background: rgba(0, 184, 255, 0.15);
+    border-color: rgba(0, 184, 255, 0.5);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 184, 255, 0.2);
 }
 
-/* ─── HOLOGRAMA DERECHO ─── */
+/* ─── HOLOGRAMA DERECHO (Animación y estructura intactas) ─── */
 .hero-hologram {
     flex-shrink: 0;
     position: relative;
@@ -541,14 +552,15 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 }
 .hero-divider-line {
     flex: 1; height: 1px;
-    background: linear-gradient(to right, rgba(255,255,255,.06), transparent);
+    background: linear-gradient(to right, rgba(0,229,160,.15), transparent);
 }
 .hero-divider-diamond {
     width: 5px; height: 5px;
-    border: 1px solid rgba(0,229,160,.3);
+    border: 1px solid rgba(0,229,160,.5);
     transform: rotate(45deg);
-    background: rgba(0,229,160,.08);
+    background: rgba(0,229,160,.15);
     flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(0,229,160,.3);
 }
 
 /* Responsive */

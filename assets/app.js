@@ -11,6 +11,7 @@
 
 const SECCIONES = [
     { archivo: 'sections/header.html',      slot: 'slot-header'      },
+    { archivo: 'sections/hero.html',        slot: 'slot-hero'      },
     { archivo: 'sections/clases.html',       slot: 'slot-clases'      },
     { archivo: 'sections/actividades.html',  slot: 'slot-actividades' },
     { archivo: 'sections/footer.html',       slot: 'slot-footer'      },

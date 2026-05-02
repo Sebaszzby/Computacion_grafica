@@ -287,14 +287,9 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 }
 
 /* ══════════════════════════
-   KATANA SLASH — paneles
-   Blade y efectos via SVG en preloader.js
+   SLIDE-UP — salida del preloader
 ══════════════════════════ */
-.k-panel {
-    position: fixed;
-    inset: 0;
-    z-index: 99998;
-    background: #08121c;
-    pointer-events: none;
-    will-change: transform;
+#preloader.slide-up {
+    transform: translateY(-100%);
+    transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1);
 }

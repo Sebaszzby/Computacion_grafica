@@ -1,19 +1,47 @@
-<!-- sections/header.html — fragmento, sin <html>/<head>/<body> -->
+<!-- sections/header.html -->
 <header>
-    <div style="animation:fadeUp .6s ease both">
-        <div class="eyebrow-row">
-            <div class="h-line l"></div>
-            <span class="eyebrow">Ingeniería de Sistemas · UTEA</span>
-            <div class="h-line r"></div>
+    <div class="h-profile-bar" style="animation:fadeUp .5s ease both">
+
+        <!-- ── Izquierda: foto + identidad ── -->
+        <div class="h-identity">
+            <div class="h-avatar-wrap">
+                <!-- Reemplaza assets/foto.jpg con tu imagen -->
+                <img src="assets/foto.jpg" alt="Sebastian Altamirano" class="h-avatar-img"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <!-- Fallback si no hay foto -->
+                <div class="h-avatar-fallback" style="display:none">SA</div>
+            </div>
+            <div class="h-identity-text">
+                <span class="h-name">Sebastian Altamirano</span>
+                <span class="h-role">Ingeniería de Sistemas · UTEA</span>
+                <div class="h-disponible">
+                    <span class="dot-live"></span>
+                    <span>Disponible</span>
+                </div>
+            </div>
         </div>
-        <h1>Computación Gráfica</h1>
-        <p class="subtitulo">Portafolio de Ejercicios y Actividades Prácticas</p>
-        <div class="badges">
+
+        <!-- ── Centro: título del portafolio ── -->
+        <div class="h-titulo-wrap">
+            <div class="eyebrow-row" style="justify-content:center;margin-bottom:.5rem">
+                <div class="h-line l"></div>
+                <span class="eyebrow">Portafolio Académico</span>
+                <div class="h-line r"></div>
+            </div>
+            <h1>Computación Gráfica</h1>
+            <p class="subtitulo">Ejercicios y Actividades Prácticas</p>
+        </div>
+
+        <!-- ── Derecha: badges ── -->
+        <div class="h-badges-wrap">
             <div class="badge badge-green"><span class="dot-live"></span>Noveno Ciclo</div>
             <div class="badge badge-blue">2026</div>
         </div>
+
     </div>
-    <div class="h-sep" style="margin-top:2.2rem">
+
+    <!-- Separador -->
+    <div class="h-sep" style="margin-top:0">
         <div class="h-sep-line"></div>
         <div class="h-sep-diamond"></div>
         <div class="h-sep-line" style="background:linear-gradient(to left,transparent,rgba(255,255,255,.07),transparent)"></div>

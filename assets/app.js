@@ -1,36 +1,31 @@
 /* ════════════════════════════════════════
-   assets/app.js  — v3
-   Fix: espera a que el canvas tenga
-   dimensiones reales antes de iniciar
-   Three.js (evita tamaño 0x0)
+   assets/app.js
+   ► Para añadir sección: crear archivo en sections/
+     y agregar entrada al array SECCIONES
 ════════════════════════════════════════ */
 
 const SECCIONES = [
     { archivo: 'sections/header.html',      slot: 'slot-header'      },
-    { archivo: 'sections/hero.html',        slot: 'slot-hero'        },
-    { archivo: 'sections/clases.html',      slot: 'slot-clases'      },
-    { archivo: 'sections/actividades.html', slot: 'slot-actividades' },
-    { archivo: 'sections/footer.html',      slot: 'slot-footer'      },
-    { archivo: 'sections/modals.html',      slot: 'slot-modals'      },
+    { archivo: 'sections/hero.html',         slot: 'slot-hero'        },
+    { archivo: 'sections/clases.html',       slot: 'slot-clases'      },
+    { archivo: 'sections/actividades.html',  slot: 'slot-actividades' },
+    { archivo: 'sections/footer.html',       slot: 'slot-footer'      },
+    { archivo: 'sections/modals.html',       slot: 'slot-modals'      },
 ];
 
-/* ── Fetch e inyecta HTML en su slot ── */
 async function cargarSeccion({ archivo, slot }) {
     const res  = await fetch(archivo);
     const html = await res.text();
     document.getElementById(slot).innerHTML = html;
 }
 
-/* ── Modal visor HTML ── */
 function initModalVisor() {
     const visor  = document.getElementById('visor');
     const iframe = document.getElementById('visor-iframe');
-
     document.getElementById('btn-close').onclick = () => {
         visor.style.display = 'none';
         iframe.src = '';
     };
-
     document.querySelectorAll('.enlace').forEach(a => {
         a.addEventListener('click', e => {
             e.preventDefault();
@@ -40,7 +35,6 @@ function initModalVisor() {
     });
 }
 
-/* ── Rotación de videos ── */
 function initVideoRotation() {
     const slides = document.querySelectorAll('.video-slide');
     const vids   = document.querySelectorAll('.video-slide video');
@@ -53,7 +47,116 @@ function initVideoRotation() {
     }, 5000);
 }
 
-/* ── Visor docx ── */
+/* ── Contador animado para los stats del hero ── */
+function initHeroStats() {
+    document.querySelectorAll('.hero-stat-num').forEach(el => {
+        const target = +el.dataset.target;
+        const dur    = 1200;
+        const start  = performance.now();
+        (function tick(now) {
+            const p = Math.min((now - start) / dur, 1);
+            const ease = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(ease * target);
+            if (p < 1) requestAnimationFrame(tick);
+        })(start);
+    });
+}
+
+/* ── Three.js hologram — icosaedro wireframe giratorio ── */
+function initHero() {
+    const canvas = document.getElementById('holo-canvas');
+    if (!canvas) return;
+
+    const wrap = document.getElementById('hero-hologram');
+    const size = wrap.offsetWidth || 420;
+    canvas.width  = size;
+    canvas.height = size;
+
+    /* Carga Three.js desde CDN y arranca la escena */
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    script.onload = () => startThreeScene(canvas, size);
+    document.head.appendChild(script);
+}
+
+function startThreeScene(canvas, size) {
+    const THREE = window.THREE;
+
+    /* Renderer transparente sobre el canvas */
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(size, size);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 3.2);
+
+    /* Icosaedro wireframe — figura principal */
+    const geoIco  = new THREE.IcosahedronGeometry(1, 1);
+    const matWire = new THREE.MeshBasicMaterial({
+        color: 0x00e5a0,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.55,
+    });
+    const ico = new THREE.Mesh(geoIco, matWire);
+    scene.add(ico);
+
+    /* Esfera exterior punteada */
+    const geoSph  = new THREE.IcosahedronGeometry(1.32, 2);
+    const matSph  = new THREE.MeshBasicMaterial({
+        color: 0x00b8ff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.12,
+    });
+    const sph = new THREE.Mesh(geoSph, matSph);
+    scene.add(sph);
+
+    /* Partículas internas */
+    const pts  = new THREE.BufferGeometry();
+    const arr  = new Float32Array(120);
+    for (let i = 0; i < arr.length; i++) arr[i] = (Math.random() - .5) * 2.2;
+    pts.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    const matPts = new THREE.PointsMaterial({ color: 0x00e5a0, size: 0.04 });
+    scene.add(new THREE.Points(pts, matPts));
+
+    /* HUD */
+    const hudX   = document.getElementById('hud-x');
+    const hudY   = document.getElementById('hud-y');
+    const hudZ   = document.getElementById('hud-z');
+    const hudFPS = document.getElementById('hud-fps');
+    let lastTime = performance.now();
+    let frames   = 0;
+
+    /* Loop */
+    (function loop(now) {
+        requestAnimationFrame(loop);
+        const t = now * 0.001;
+
+        ico.rotation.x = t * 0.38;
+        ico.rotation.y = t * 0.55;
+        sph.rotation.x = -t * 0.18;
+        sph.rotation.y = t * 0.22;
+
+        /* HUD coords */
+        if (hudX) hudX.textContent = ico.rotation.x.toFixed(2);
+        if (hudY) hudY.textContent = ico.rotation.y.toFixed(2);
+        if (hudZ) hudZ.textContent = (Math.sin(t * .4) * 0.5).toFixed(2);
+
+        /* FPS */
+        frames++;
+        if (now - lastTime >= 1000) {
+            if (hudFPS) hudFPS.textContent = frames;
+            frames   = 0;
+            lastTime = now;
+        }
+
+        renderer.render(scene, camera);
+    })(0);
+}
+
+/* ── Visor de documentos ── */
 function getDocURL() {
     const base = window.location.href
         .split('?')[0].replace(/#.*$/, '').replace(/\/[^/]*$/, '/');
@@ -75,23 +178,23 @@ window.abrirDocumento = function () {
         try {
             const iDoc = docFrame.contentDocument || docFrame.contentWindow?.document;
             if (!iDoc || iDoc.title === '') document.getElementById('doc-error').style.display = 'flex';
-        } catch (e) { /* cross-origin = OK */ }
+        } catch (e) {}
     }, 12000);
 };
 
 window.cerrarDocumento = function () {
-    const dv = document.getElementById('doc-visor');
-    const df = document.getElementById('doc-frame');
-    clearTimeout(dv._errTimer);
-    dv.style.display = 'none'; df.src = '';
+    const docVisor = document.getElementById('doc-visor');
+    clearTimeout(docVisor._errTimer);
+    docVisor.style.display = 'none';
+    document.getElementById('doc-frame').src = '';
     document.getElementById('doc-error').style.display = 'none';
     document.body.style.overflow = '';
 };
 
 window.reintentarDoc = function () {
     document.getElementById('doc-error').style.display = 'none';
-    const df = document.getElementById('doc-frame'), src = df.src;
-    df.src = ''; setTimeout(() => { df.src = src; }, 200);
+    const f = document.getElementById('doc-frame'), s = f.src;
+    f.src = ''; setTimeout(() => { f.src = s; }, 200);
 };
 
 window.copiarURL = function () {
@@ -99,218 +202,12 @@ window.copiarURL = function () {
     navigator.clipboard?.writeText(txt).then(() => alert('URL copiada'));
 };
 
-/* ════════════════════════════════════════
-   HERO — contadores animados
-════════════════════════════════════════ */
-function initContadores() {
-    document.querySelectorAll('.hero-stat-num').forEach(el => {
-        const target = +el.dataset.target;
-        let n = 0;
-        const iv = setInterval(() => {
-            n = Math.min(n + Math.max(1, Math.ceil(target / 30)), target);
-            el.textContent = n;
-            if (n >= target) clearInterval(iv);
-        }, 40);
-    });
-}
-
-/* ════════════════════════════════════════
-   HERO — HOLOGRAMA THREE.JS
-   
-   El truco: usamos requestAnimationFrame
-   en un loop hasta que el canvas tenga
-   dimensiones reales (> 0), ENTONCES
-   iniciamos Three.js. Esto resuelve el
-   problema de canvas 0x0 cuando se llama
-   inmediatamente después de innerHTML.
-════════════════════════════════════════ */
-function initHero() {
-    initContadores();
-
-    /* Cargar Three.js si no está cargado */
-    if (typeof THREE === 'undefined') {
-        const s  = document.createElement('script');
-        s.src    = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-        s.onload = () => waitForCanvas();
-        s.onerror= () => console.error('[Hero] No se pudo cargar Three.js');
-        document.head.appendChild(s);
-    } else {
-        waitForCanvas();
-    }
-}
-
-/* Espera hasta que el canvas tenga tamaño real */
-function waitForCanvas() {
-    const canvas = document.getElementById('holo-canvas');
-    if (!canvas) { console.error('[Hero] #holo-canvas no existe en el DOM'); return; }
-
-    let tries = 0;
-    function check() {
-        tries++;
-        const w = canvas.offsetWidth;
-        const h = canvas.offsetHeight;
-        if (w > 0 && h > 0) {
-            console.log(`[Hero] Canvas listo: ${w}×${h} (intento ${tries})`);
-            startHologram(canvas, w, h);
-        } else if (tries < 60) {
-            /* Reintentar en el próximo frame de pintado */
-            requestAnimationFrame(check);
-        } else {
-            console.error('[Hero] Canvas nunca tuvo dimensiones');
-        }
-    }
-    requestAnimationFrame(check);
-}
-
-/* ── Inicia el holograma Three.js ── */
-function startHologram(canvas, W, H) {
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setSize(W, H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
-    camera.position.set(0, 0, 3.8);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.18));
-    const l1 = new THREE.PointLight(0x00e5a0, 3, 12);
-    l1.position.set(2, 2, 2); scene.add(l1);
-    const l2 = new THREE.PointLight(0x00b8ff, 2, 10);
-    l2.position.set(-2, -1, 1); scene.add(l2);
-    const l3 = new THREE.PointLight(0xffffff, 1, 8);
-    l3.position.set(0, 3, -1); scene.add(l3);
-
-    /* Figuras que ciclan */
-    const SHAPES = [
-        () => new THREE.IcosahedronGeometry(1, 1),
-        () => new THREE.OctahedronGeometry(1, 0),
-        () => new THREE.TorusKnotGeometry(.7, .28, 100, 16),
-        () => new THREE.DodecahedronGeometry(1, 0),
-        () => new THREE.TorusGeometry(.85, .32, 24, 64),
-    ];
-
-    let shapeIdx = 0, main = null, wire = null, morphing = false;
-
-    function spawn(i, instant = false) {
-        if (main) scene.remove(main);
-        if (wire) scene.remove(wire);
-        const geo = SHAPES[i]();
-        main = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-            color:0x00e5a0, emissive:0x00e5a0, emissiveIntensity:.25,
-            metalness:.85, roughness:.1, transparent:true, opacity: instant ? .88 : 0,
-        }));
-        wire = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
-            color:0x00e5a0, wireframe:true, transparent:true, opacity: instant ? .12 : 0,
-        }));
-        scene.add(main); scene.add(wire);
-    }
-    spawn(0, true);
-
-    setInterval(() => {
-        if (morphing) return;
-        morphing = true;
-        shapeIdx = (shapeIdx + 1) % SHAPES.length;
-        let op = 1;
-        const out = setInterval(() => {
-            op = Math.max(op - .07, 0);
-            if (main) main.material.opacity = op * .88;
-            if (wire) wire.material.opacity = op * .12;
-            if (op <= 0) {
-                clearInterval(out); spawn(shapeIdx);
-                let ni = 0;
-                const inp = setInterval(() => {
-                    ni = Math.min(ni + .07, 1);
-                    if (main) main.material.opacity = ni * .88;
-                    if (wire) wire.material.opacity = ni * .12;
-                    if (ni >= 1) { clearInterval(inp); morphing = false; }
-                }, 18);
-            }
-        }, 18);
-    }, 4500);
-
-    /* Partículas */
-    const pGeo = new THREE.BufferGeometry();
-    const pos  = new Float32Array(80 * 3);
-    for (let i = 0; i < 80; i++) {
-        pos[i*3]   = (Math.random() - .5) * 5;
-        pos[i*3+1] = (Math.random() - .5) * 5;
-        pos[i*3+2] = (Math.random() - .5) * 5;
-    }
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const parts = new THREE.Points(pGeo, new THREE.PointsMaterial({
-        color: 0x00e5a0, size: .028, transparent: true, opacity: .5,
-    }));
-    scene.add(parts);
-
-    /* Grid */
-    const grid = new THREE.GridHelper(6, 12, 0x00e5a0, 0x0a1520);
-    grid.position.y = -1.4;
-    grid.material.transparent = true;
-    grid.material.opacity = .18;
-    scene.add(grid);
-
-    /* HUD */
-    const hx = document.getElementById('hud-x');
-    const hy = document.getElementById('hud-y');
-    const hz = document.getElementById('hud-z');
-    const hf = document.getElementById('hud-fps');
-    let t = 0, lastT = performance.now(), frames = 0;
-
-    /* Loop de renderizado */
-    function loop(now) {
-        requestAnimationFrame(loop);
-        t += .006;
-
-        if (main) {
-            main.rotation.x = t * .38;
-            main.rotation.y = t * .55;
-            main.position.y = Math.sin(t * .8) * .12;
-            wire.rotation.copy(main.rotation);
-            wire.position.copy(main.position);
-        }
-
-        parts.rotation.y = t * .08;
-        parts.rotation.x = t * .04;
-        l1.intensity = 3 + Math.sin(t * 1.5) * .6;
-        l2.intensity = 2 + Math.cos(t * 1.2) * .4;
-
-        if (main) {
-            if (hx) hx.textContent = main.rotation.x.toFixed(2);
-            if (hy) hy.textContent = main.rotation.y.toFixed(2);
-            if (hz) hz.textContent = main.position.y.toFixed(2);
-        }
-        frames++;
-        if (now - lastT >= 1000) {
-            if (hf) hf.textContent = frames;
-            frames = 0; lastT = now;
-        }
-
-        renderer.render(scene, camera);
-    }
-    loop(performance.now());
-
-    /* Resize responsivo */
-    new ResizeObserver(() => {
-        const w = canvas.offsetWidth;
-        const h = canvas.offsetHeight;
-        if (!w || !h) return;
-        renderer.setSize(w, h);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-    }).observe(canvas);
-
-    console.log('[Hero] Holograma iniciado ✓');
-}
-
-/* ════════════════════════════════════════
-   PUNTO DE ENTRADA
-════════════════════════════════════════ */
+/* ── Inicio ── */
 async function init() {
     await Promise.all(SECCIONES.map(cargarSeccion));
-
     initModalVisor();
     initVideoRotation();
+    initHeroStats();
     initHero();
 }
 

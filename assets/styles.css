@@ -286,27 +286,15 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     .f-right{align-items:center}
 }
 
-/* ══════════════════════════════════════════
-   KATANA SLASH — DIAGONAL ÉPICO
-   Los paneles k-panel cubren toda la pantalla
-   con fondo igual al preloader. El clip-path
-   y el movimiento final se aplican desde JS
-   en preloader.js (animateBlade / splitScreen).
-   
-   NOTA: Los estilos .k-blade, .k-cut, .k-flash
-   de la versión anterior han sido eliminados —
-   toda esa lógica ahora es SVG puro vía JS.
-══════════════════════════════════════════ */
-
+/* ══════════════════════════
+   KATANA SLASH — paneles
+   Blade y efectos via SVG en preloader.js
+══════════════════════════ */
 .k-panel {
     position: fixed;
     inset: 0;
     z-index: 99998;
     background: #08121c;
     pointer-events: none;
-    will-change: transform, clip-path;
-    /* Sin transición al crear — se añade por JS justo antes del split */
+    will-change: transform;
 }
-
-.k-panel.k-top { transform-origin: top left; }
-.k-panel.k-bot { transform-origin: bottom right; }

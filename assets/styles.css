@@ -286,88 +286,27 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     .f-right{align-items:center}
 }
 
-/* ══════════════════════════
-   KATANA SLASH TRANSITION
-   Secuencia: terminal fade → blade sweep → flash → screen split
-══════════════════════════ */
+/* ══════════════════════════════════════════
+   KATANA SLASH — DIAGONAL ÉPICO
+   Los paneles k-panel cubren toda la pantalla
+   con fondo igual al preloader. El clip-path
+   y el movimiento final se aplican desde JS
+   en preloader.js (animateBlade / splitScreen).
+   
+   NOTA: Los estilos .k-blade, .k-cut, .k-flash
+   de la versión anterior han sido eliminados —
+   toda esa lógica ahora es SVG puro vía JS.
+══════════════════════════════════════════ */
 
-/* Los dos paneles que cubren la pantalla (misma bg que el preloader) */
 .k-panel {
     position: fixed;
-    left: 0; right: 0;
+    inset: 0;
     z-index: 99998;
     background: #08121c;
     pointer-events: none;
-    transition: transform 0.58s cubic-bezier(0.6, 0, 0.1, 1);
-}
-.k-top { top: 0;    height: calc(50% + 1px); } /* +1px evita gap sub-pixel */
-.k-bot { bottom: 0; height: calc(50% + 1px); top: calc(50% - 1px); }
-
-.k-top.exit { transform: translateY(-101%); }
-.k-bot.exit { transform: translateY(101%); }
-
-/* La hoja: línea horizontal que barre de izquierda a derecha */
-.k-blade {
-    position: fixed;
-    top: calc(50% - 1px);
-    left: 0;
-    width: 100vw;
-    height: 2px;
-    z-index: 99999;
-    pointer-events: none;
-
-    /* Gradiente que simula la hoja: brillante en el centro, apagado en los extremos */
-    background: linear-gradient(
-        to right,
-        transparent          0%,
-        rgba(0,229,160,0)    8%,
-        rgba(255,255,255,.7) 38%,
-        #00e5a0              52%,
-        rgba(255,255,255,.7) 66%,
-        rgba(0,229,160,0)    92%,
-        transparent          100%
-    );
-    box-shadow:
-        0  0 6px  2px rgba(0,229,160,.85),
-        0  0 18px 5px rgba(0,229,160,.45),
-        0  0 38px 10px rgba(255,255,255,.15);
-
-    /* Empieza fuera de la pantalla a la izquierda */
-    transform: translateX(-110vw);
-    /* Velocidad de corte: rápida y lineal — el sable no desacelera */
-    transition: transform 0.26s linear;
-}
-.k-blade.sweep { transform: translateX(110vw); }
-
-/* Línea residual: el "corte" queda brillando un instante */
-.k-cut {
-    position: fixed;
-    top: calc(50% - 1px);
-    left: 0; right: 0;
-    height: 1px;
-    z-index: 99997;
-    pointer-events: none;
-    background: linear-gradient(to right, transparent 5%, rgba(0,229,160,.55) 50%, transparent 95%);
-    box-shadow: 0 0 10px 2px rgba(0,229,160,.35);
-    opacity: 0;
-    animation: k-cut-glow 0.75s ease-out 0.18s forwards;
-}
-@keyframes k-cut-glow {
-    0%   { opacity: 1; }
-    100% { opacity: 0; }
+    will-change: transform, clip-path;
+    /* Sin transición al crear — se añade por JS justo antes del split */
 }
 
-/* Flash en el momento de impacto */
-.k-flash {
-    position: fixed;
-    inset: 0;
-    z-index: 99996;
-    pointer-events: none;
-    opacity: 0;
-    animation: k-flash-burst 0.38s ease-out forwards;
-}
-@keyframes k-flash-burst {
-    0%   { opacity: 0;    background: rgba(255,255,255,0); }
-    18%  { opacity: 1;    background: rgba(255,255,255,.11); }
-    100% { opacity: 0;    background: rgba(255,255,255,0); }
-}
+.k-panel.k-top { transform-origin: top left; }
+.k-panel.k-bot { transform-origin: bottom right; }

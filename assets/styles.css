@@ -287,27 +287,41 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 }
 
 /* ════════════════════════════════════════
-   HERO SECTION — añadir al final de styles.css
+   HERO SECTION — reemplaza el bloque hero
+   en assets/styles.css
 ════════════════════════════════════════ */
 
-/* Wrapper full-width — bloquea el video con fondo sólido */
-.hero-bg {
+/* ─── SECCIÓN HERO — FONDO PROPIO ───────
+   position:relative + z-index alto + background
+   hacen que tape el video completamente.
+   El video SOLO se ve desde .zona-video
+   hacia abajo (clases/actividades).
+──────────────────────────────────────── */
+.hero {
     position: relative;
     z-index: 10;
+    /* Fondo sólido propio — tapa el video */
     background: var(--base);
-    border-bottom: 1px solid rgba(255,255,255,.04);
-}
-
-.hero {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 3rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 4rem 24px 3.5rem;
-    min-height: 75vh;
+    /* Ancho completo para que el fondo cubra todo */
     width: 100%;
+    padding: 5rem 0 4rem;
+    min-height: 80vh;
+}
+
+/* Contenido centrado dentro */
+.hero-inner {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
 }
 
 /* ─── TEXTO IZQUIERDO ─── */
@@ -472,8 +486,8 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     inset: -60px;
     border-radius: 50%;
     background: radial-gradient(circle,
-        rgba(0,229,160,.1) 0%,
-        rgba(0,184,255,.06) 40%,
+        rgba(0,229,160,.12) 0%,
+        rgba(0,184,255,.07) 40%,
         transparent 70%
     );
     z-index: -1;
@@ -492,7 +506,7 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(10,21,32,.85);
+    background: rgba(10,21,32,.9);
     border: 1px solid rgba(0,229,160,.2);
     border-radius: 100px;
     padding: 5px 14px;
@@ -526,15 +540,17 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
 .holo-hud-bl { bottom: 24px; left: 8px; }
 .holo-hud-br { bottom: 24px; right: 8px; text-align: right; }
 
-/* Separador hero → contenido */
+/* ─── SEPARADOR HERO → ZONA VIDEO ─── */
 .hero-divider {
-    max-width: 1200px;
-    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+    background: var(--base); /* mismo fondo, sin video */
     padding: 0 24px 2rem;
     display: flex;
     align-items: center;
     gap: 16px;
-    width: 100%;
+    /* Ancho máximo centrado */
+    max-width: 100%;
 }
 .hero-divider-line {
     flex: 1; height: 1px;
@@ -548,11 +564,28 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     flex-shrink: 0;
 }
 
-/* Responsive */
+/* ─── ZONA CON VIDEO (clases + actividades) ───
+   El contenedor de tarjetas se centra igual
+   que el resto del layout
+──────────────────────────────────────────── */
+.zona-video {
+    position: relative; /* no fixed — el video sí es fixed */
+    z-index: 10;
+    flex-grow: 1;
+}
+
+.contenedor {
+    max-width: 1200px;
+    margin: 0 auto;           /* centrado horizontal */
+    padding: 3rem 24px 5rem;  /* padding uniforme */
+    width: 100%;
+}
+
+/* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
     .hero {
         flex-direction: column;
-        padding: 3rem 24px 2rem;
+        padding: 3rem 0 2rem;
         min-height: auto;
         gap: 2.5rem;
     }

@@ -286,313 +286,246 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     .f-right{align-items:center}
 }
 
-/* ════════════════════════════════════════
-   HERO SECTION — reemplaza el bloque hero
-   en assets/styles.css
-════════════════════════════════════════ */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --acento:#00e5a0; --acento2:#00b8ff;
+            --base:#0a1520; --texto-dim:rgba(255,255,255,.42);
+            --texto-mid:rgba(255,255,255,.65);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Space Grotesk',sans-serif;background:var(--base);color:#fff;min-height:100vh;}
 
-/* ─── SECCIÓN HERO — FONDO PROPIO ───────
-   position:relative + z-index alto + background
-   hacen que tape el video completamente.
-   El video SOLO se ve desde .zona-video
-   hacia abajo (clases/actividades).
-──────────────────────────────────────── */
-.hero {
-    position: relative;
-    z-index: 10;
-    /* Fondo sólido propio — tapa el video */
-    background: var(--base);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 3rem;
-    /* Ancho completo para que el fondo cubra todo */
-    width: 100%;
-    padding: 5rem 0 4rem;
-    min-height: 80vh;
-}
+        /* ── HERO ── */
+        .hero{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:3rem;max-width:1200px;margin:0 auto;padding:5rem 24px 4rem;min-height:80vh;}
+        .hero-text{flex:1;max-width:520px;}
+        .hero-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:1.2rem;}
+        .hero-dot{width:7px;height:7px;border-radius:50%;background:var(--acento);box-shadow:0 0 10px var(--acento);animation:pulse 2s infinite;}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+        .hero-eyebrow-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acento);opacity:.75;}
+        .hero-title{font-size:clamp(2.6rem,5.5vw,4.2rem);font-weight:700;line-height:1.05;letter-spacing:-.03em;color:#fff;margin-bottom:1.4rem;}
+        .hero-title-accent{background:linear-gradient(135deg,var(--acento),var(--acento2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero-desc{font-size:.95rem;color:var(--texto-mid);line-height:1.7;margin-bottom:2rem;max-width:420px;}
+        .hero-desc strong{color:#fff;font-weight:600;}
+        .hero-stats{display:flex;align-items:center;gap:1.4rem;margin-bottom:2rem;}
+        .hero-stat{display:flex;flex-direction:column;gap:3px;}
+        .hero-stat-num{font-size:2rem;font-weight:700;color:#fff;line-height:1;}
+        .hero-stat-label{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--texto-dim);}
+        .hero-stat-div{width:1px;height:36px;background:rgba(255,255,255,.1);flex-shrink:0;}
+        .hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+        .hero-tag{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.08em;padding:5px 12px;border-radius:6px;background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.18);color:rgba(0,229,160,.8);}
 
-/* Contenido centrado dentro */
-.hero-inner {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 3rem;
-}
+        /* ── HOLOGRAMA ── */
+        .hero-hologram{flex-shrink:0;position:relative;width:420px;height:420px;}
+        #holo-canvas{width:100%;height:100%;border-radius:50%;display:block;}
+        .holo-ring{position:absolute;border-radius:50%;border:1px solid rgba(0,229,160,.18);pointer-events:none;}
+        .holo-ring-1{inset:-16px;animation:spin 12s linear infinite;border-color:rgba(0,229,160,.22);border-style:dashed;}
+        .holo-ring-2{inset:-32px;animation:spin 20s linear infinite reverse;border-color:rgba(0,184,255,.14);}
+        .holo-ring-3{inset:-52px;animation:spin 32s linear infinite;border-color:rgba(0,229,160,.07);border-style:dotted;}
+        @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+        .hero-hologram::before{content:'';position:absolute;inset:-60px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,160,.1) 0%,rgba(0,184,255,.06) 40%,transparent 70%);z-index:-1;animation:glow 4s ease-in-out infinite alternate;}
+        @keyframes glow{from{opacity:.6;transform:scale(.95)}to{opacity:1;transform:scale(1.05)}}
+        .holo-label{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(10,21,32,.85);border:1px solid rgba(0,229,160,.2);border-radius:100px;padding:5px 14px;white-space:nowrap;backdrop-filter:blur(8px);}
+        .holo-label-dot{width:5px;height:5px;border-radius:50%;background:var(--acento);box-shadow:0 0 6px var(--acento);animation:pulse 1.8s infinite;}
+        .holo-label-text{font-family:'DM Mono',monospace;font-size:.62rem;color:rgba(0,229,160,.75);letter-spacing:.08em;}
+        .holo-hud{position:absolute;font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(0,229,160,.5);letter-spacing:.06em;white-space:nowrap;}
+        .holo-hud-tl{top:8px;left:8px;} .holo-hud-tr{top:8px;right:8px;text-align:right;}
+        .holo-hud-bl{bottom:24px;left:8px;} .holo-hud-br{bottom:24px;right:8px;text-align:right;}
 
-/* ─── TEXTO IZQUIERDO ─── */
-.hero-text {
-    flex: 1;
-    max-width: 520px;
-    animation: heroFadeLeft .8s cubic-bezier(.22,1,.36,1) .2s both;
-}
-@keyframes heroFadeLeft {
-    from { opacity:0; transform:translateX(-28px); }
-    to   { opacity:1; transform:none; }
-}
+        #debug{position:fixed;top:10px;right:10px;background:rgba(0,0,0,.8);color:#00e5a0;font-family:monospace;font-size:11px;padding:10px;border-radius:6px;max-width:300px;z-index:9999;}
+    </style>
+</head>
+<body>
 
-.hero-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 1.2rem;
-}
-.hero-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--acento);
-    box-shadow: 0 0 10px var(--acento);
-    animation: heroPulse 2.2s infinite;
-}
-@keyframes heroPulse {
-    0%,100% { opacity:1; box-shadow:0 0 10px var(--acento); }
-    50%      { opacity:.35; box-shadow:0 0 4px var(--acento); }
-}
-.hero-eyebrow-label {
-    font-family: 'DM Mono', monospace;
-    font-size: .68rem;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--acento);
-    opacity: .75;
-}
+<div id="debug">Iniciando...</div>
 
-.hero-title {
-    font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -.03em;
-    color: #fff;
-    margin-bottom: 1.4rem;
-}
-.hero-title-accent {
-    background: linear-gradient(135deg, var(--acento) 0%, var(--acento2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+<section class="hero" id="hero">
+    <div class="hero-text">
+        <div class="hero-eyebrow">
+            <span class="hero-dot"></span>
+            <span class="hero-eyebrow-label">Noveno Ciclo · 2026</span>
+        </div>
+        <h2 class="hero-title">Computación<br><span class="hero-title-accent">Gráfica</span></h2>
+        <p class="hero-desc">Curso orientado al estudio de algoritmos, transformaciones geométricas y renderizado en tiempo real mediante <strong>WebGL</strong> y <strong>Three.js</strong>.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><span class="hero-stat-num" data-target="11">0</span><span class="hero-stat-label">Ejercicios</span></div>
+            <div class="hero-stat-div"></div>
+            <div class="hero-stat"><span class="hero-stat-num" data-target="3">0</span><span class="hero-stat-label">Clases</span></div>
+            <div class="hero-stat-div"></div>
+            <div class="hero-stat"><span class="hero-stat-num" data-target="3">0</span><span class="hero-stat-label">Actividades</span></div>
+        </div>
+        <div class="hero-tags">
+            <span class="hero-tag">WebGL 2</span>
+            <span class="hero-tag">Three.js</span>
+            <span class="hero-tag">GLSL</span>
+            <span class="hero-tag">gl-matrix</span>
+            <span class="hero-tag">Bresenham</span>
+        </div>
+    </div>
 
-.hero-desc {
-    font-size: .95rem;
-    color: var(--texto-mid);
-    line-height: 1.7;
-    margin-bottom: 2rem;
-    max-width: 420px;
-}
-.hero-desc strong { color: #fff; font-weight: 600; }
+    <div class="hero-hologram" id="hero-hologram">
+        <canvas id="holo-canvas"></canvas>
+        <div class="holo-ring holo-ring-1"></div>
+        <div class="holo-ring holo-ring-2"></div>
+        <div class="holo-ring holo-ring-3"></div>
+        <div class="holo-label"><span class="holo-label-dot"></span><span class="holo-label-text">render · loop activo</span></div>
+        <div class="holo-hud holo-hud-tl">X: <span id="hud-x">0.00</span></div>
+        <div class="holo-hud holo-hud-tr">Y: <span id="hud-y">0.00</span></div>
+        <div class="holo-hud holo-hud-bl">Z: <span id="hud-z">0.00</span></div>
+        <div class="holo-hud holo-hud-br">FPS: <span id="hud-fps">60</span></div>
+    </div>
+</section>
 
-/* Stats */
-.hero-stats {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
-    margin-bottom: 2rem;
-}
-.hero-stat { display: flex; flex-direction: column; gap: 3px; }
-.hero-stat-num {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-}
-.hero-stat-label {
-    font-family: 'DM Mono', monospace;
-    font-size: .62rem;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--texto-dim);
-}
-.hero-stat-div {
-    width: 1px; height: 36px;
-    background: rgba(255,255,255,.1);
-    flex-shrink: 0;
+<!-- Three.js primero, luego el código del holograma -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const dbg = document.getElementById('debug');
+
+function log(msg) {
+    console.log(msg);
+    dbg.innerHTML += '<br>' + msg;
 }
 
-/* Tags */
-.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.hero-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: .68rem;
-    letter-spacing: .08em;
-    padding: 5px 12px;
-    border-radius: 6px;
-    background: rgba(0,229,160,.07);
-    border: 1px solid rgba(0,229,160,.18);
-    color: rgba(0,229,160,.8);
-    transition: background .22s, border-color .22s, color .22s;
-}
-.hero-tag:hover {
-    background: rgba(0,229,160,.14);
-    border-color: rgba(0,229,160,.4);
-    color: var(--acento);
-}
+log('Three.js: ' + (typeof THREE !== 'undefined' ? '✓' : '✗ NO CARGÓ'));
 
-/* ─── HOLOGRAMA DERECHO ─── */
-.hero-hologram {
-    flex-shrink: 0;
-    position: relative;
-    width: min(420px, 44vw);
-    height: min(420px, 44vw);
-    animation: heroFadeRight .8s cubic-bezier(.22,1,.36,1) .35s both;
-}
-@keyframes heroFadeRight {
-    from { opacity:0; transform:translateX(28px); }
-    to   { opacity:1; transform:none; }
-}
+// Contadores
+document.querySelectorAll('.hero-stat-num').forEach(el => {
+    const target = +el.dataset.target;
+    let n = 0;
+    const iv = setInterval(() => {
+        n = Math.min(n + 1, target);
+        el.textContent = n;
+        if (n >= target) clearInterval(iv);
+    }, 60);
+});
 
-#holo-canvas {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: block;
-}
+// Holograma
+function startHologram() {
+    const canvas = document.getElementById('holo-canvas');
+    if (!canvas) { log('✗ canvas no encontrado'); return; }
 
-.holo-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(0,229,160,.18);
-    pointer-events: none;
-}
-.holo-ring-1 {
-    inset: -16px;
-    animation: holoSpin 12s linear infinite;
-    border-color: rgba(0,229,160,.22);
-    border-style: dashed;
-}
-.holo-ring-2 {
-    inset: -32px;
-    animation: holoSpin 20s linear infinite reverse;
-    border-color: rgba(0,184,255,.14);
-}
-.holo-ring-3 {
-    inset: -52px;
-    animation: holoSpin 32s linear infinite;
-    border-color: rgba(0,229,160,.07);
-    border-style: dotted;
-}
-@keyframes holoSpin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
+    const W = canvas.offsetWidth;
+    const H = canvas.offsetHeight;
+    log(`Canvas: ${W}x${H}`);
 
-.hero-hologram::before {
-    content: '';
-    position: absolute;
-    inset: -60px;
-    border-radius: 50%;
-    background: radial-gradient(circle,
-        rgba(0,229,160,.12) 0%,
-        rgba(0,184,255,.07) 40%,
-        transparent 70%
-    );
-    z-index: -1;
-    animation: holoGlow 4s ease-in-out infinite alternate;
-}
-@keyframes holoGlow {
-    from { opacity:.6; transform:scale(.95); }
-    to   { opacity:1;  transform:scale(1.05); }
-}
+    if (!W || !H) { log('✗ canvas tiene tamaño 0 — esperando...'); setTimeout(startHologram, 200); return; }
 
-.holo-label {
-    position: absolute;
-    bottom: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(10,21,32,.9);
-    border: 1px solid rgba(0,229,160,.2);
-    border-radius: 100px;
-    padding: 5px 14px;
-    white-space: nowrap;
-    backdrop-filter: blur(8px);
-}
-.holo-label-dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--acento);
-    box-shadow: 0 0 6px var(--acento);
-    animation: heroPulse 1.8s infinite;
-}
-.holo-label-text {
-    font-family: 'DM Mono', monospace;
-    font-size: .62rem;
-    color: rgba(0,229,160,.75);
-    letter-spacing: .08em;
-}
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    log('✓ Renderer creado');
 
-.holo-hud {
-    position: absolute;
-    font-family: 'DM Mono', monospace;
-    font-size: .6rem;
-    color: rgba(0,229,160,.5);
-    letter-spacing: .06em;
-    white-space: nowrap;
-}
-.holo-hud-tl { top: 8px;    left: 8px; }
-.holo-hud-tr { top: 8px;    right: 8px; text-align: right; }
-.holo-hud-bl { bottom: 24px; left: 8px; }
-.holo-hud-br { bottom: 24px; right: 8px; text-align: right; }
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+    camera.position.set(0, 0, 3.8);
 
-/* ─── SEPARADOR HERO → ZONA VIDEO ─── */
-.hero-divider {
-    position: relative;
-    z-index: 10;
-    background: var(--base); /* mismo fondo, sin video */
-    padding: 0 24px 2rem;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    /* Ancho máximo centrado */
-    max-width: 100%;
-}
-.hero-divider-line {
-    flex: 1; height: 1px;
-    background: linear-gradient(to right, rgba(255,255,255,.06), transparent);
-}
-.hero-divider-diamond {
-    width: 5px; height: 5px;
-    border: 1px solid rgba(0,229,160,.3);
-    transform: rotate(45deg);
-    background: rgba(0,229,160,.08);
-    flex-shrink: 0;
-}
+    scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+    const l1 = new THREE.PointLight(0x00e5a0, 3, 12);
+    l1.position.set(2, 2, 2); scene.add(l1);
+    const l2 = new THREE.PointLight(0x00b8ff, 2, 10);
+    l2.position.set(-2, -1, 1); scene.add(l2);
 
-/* ─── ZONA CON VIDEO (clases + actividades) ───
-   El contenedor de tarjetas se centra igual
-   que el resto del layout
-──────────────────────────────────────────── */
-.zona-video {
-    position: relative; /* no fixed — el video sí es fixed */
-    z-index: 10;
-    flex-grow: 1;
-}
+    const SHAPES = [
+        () => new THREE.IcosahedronGeometry(1, 1),
+        () => new THREE.OctahedronGeometry(1, 0),
+        () => new THREE.TorusKnotGeometry(.7, .28, 100, 16),
+        () => new THREE.DodecahedronGeometry(1, 0),
+        () => new THREE.TorusGeometry(.85, .32, 24, 64),
+    ];
 
-.contenedor {
-    max-width: 1200px;
-    margin: 0 auto;           /* centrado horizontal */
-    padding: 3rem 24px 5rem;  /* padding uniforme */
-    width: 100%;
-}
+    let idx = 0, main = null, wire = null, morphing = false;
 
-/* ─── RESPONSIVE ─── */
-@media (max-width: 768px) {
-    .hero {
-        flex-direction: column;
-        padding: 3rem 0 2rem;
-        min-height: auto;
-        gap: 2.5rem;
+    function spawn(i, instant = false) {
+        if (main) scene.remove(main);
+        if (wire) scene.remove(wire);
+        const geo = SHAPES[i]();
+        main = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+            color:0x00e5a0, emissive:0x00e5a0, emissiveIntensity:.25,
+            metalness:.85, roughness:.1, transparent:true, opacity: instant ? .88 : 0,
+        }));
+        wire = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+            color:0x00e5a0, wireframe:true, transparent:true, opacity: instant ? .12 : 0,
+        }));
+        scene.add(main); scene.add(wire);
     }
-    .hero-hologram {
-        width: min(280px, 80vw);
-        height: min(280px, 80vw);
-        order: -1;
+    spawn(0, true);
+    log('✓ Figura creada');
+
+    setInterval(() => {
+        if (morphing) return;
+        morphing = true; idx = (idx + 1) % SHAPES.length;
+        let op = 1;
+        const out = setInterval(() => {
+            op = Math.max(op - .07, 0);
+            if (main) main.material.opacity = op * .88;
+            if (wire) wire.material.opacity = op * .12;
+            if (op <= 0) {
+                clearInterval(out); spawn(idx);
+                let ni = 0;
+                const inp = setInterval(() => {
+                    ni = Math.min(ni + .07, 1);
+                    if (main) main.material.opacity = ni * .88;
+                    if (wire) wire.material.opacity = ni * .12;
+                    if (ni >= 1) { clearInterval(inp); morphing = false; }
+                }, 18);
+            }
+        }, 18);
+    }, 4500);
+
+    // Partículas
+    const pGeo = new THREE.BufferGeometry();
+    const pos  = new Float32Array(80 * 3);
+    for (let i = 0; i < 80; i++) { pos[i*3]=(Math.random()-.5)*5; pos[i*3+1]=(Math.random()-.5)*5; pos[i*3+2]=(Math.random()-.5)*5; }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ color:0x00e5a0, size:.028, transparent:true, opacity:.5 })));
+
+    // Grid
+    const grid = new THREE.GridHelper(6, 12, 0x00e5a0, 0x0a1520);
+    grid.position.y = -1.4; grid.material.transparent = true; grid.material.opacity = .18;
+    scene.add(grid);
+
+    const hx = document.getElementById('hud-x');
+    const hy = document.getElementById('hud-y');
+    const hz = document.getElementById('hud-z');
+    const hf = document.getElementById('hud-fps');
+    let t = 0, lastT = performance.now(), frames = 0;
+
+    function loop(now) {
+        requestAnimationFrame(loop); t += .006;
+        if (main) {
+            main.rotation.x = t * .38; main.rotation.y = t * .55;
+            main.position.y = Math.sin(t * .8) * .12;
+            wire.rotation.copy(main.rotation); wire.position.copy(main.position);
+        }
+        l1.intensity = 3 + Math.sin(t * 1.5) * .6;
+        l2.intensity = 2 + Math.cos(t * 1.2) * .4;
+        if (hx && main) { hx.textContent = main.rotation.x.toFixed(2); hy.textContent = main.rotation.y.toFixed(2); hz.textContent = main.position.y.toFixed(2); }
+        frames++;
+        if (now - lastT >= 1000) { if (hf) hf.textContent = frames; frames = 0; lastT = now; }
+        renderer.render(scene, camera);
     }
-    .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+    log('✓ Loop iniciado');
+    loop(performance.now());
+
+    new ResizeObserver(() => {
+        const w = canvas.offsetWidth, h = canvas.offsetHeight;
+        if (!w || !h) return;
+        renderer.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix();
+    }).observe(canvas);
 }
+
+if (typeof THREE !== 'undefined') {
+    startHologram();
+} else {
+    log('✗ THREE no disponible');
+}
+</script>
+</body>
+</html>

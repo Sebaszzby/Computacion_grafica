@@ -293,3 +293,128 @@ footer { position:relative; z-index:10; background:var(--base); border-top:1px s
     transform: translateY(-100%);
     transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1);
 }
+
+
+/* ════════════════════════════════════════
+   AÑADIR AL FINAL DE assets/styles.css
+   Estilos del header con foto de perfil
+════════════════════════════════════════ */
+
+/* ── Barra principal del header ── */
+.h-profile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 2.5rem 1.8rem;
+    flex-wrap: wrap;
+}
+
+/* ── Identidad: foto + texto ── */
+.h-identity {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+/* Contenedor de la foto — ring de acento */
+.h-avatar-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--acento), var(--acento2));
+    flex-shrink: 0;
+    box-shadow: 0 0 18px rgba(0,229,160,.25);
+}
+
+.h-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    background: var(--surface);
+}
+
+/* Fallback de iniciales si no hay foto */
+.h-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--surface);
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--acento);
+    letter-spacing: .05em;
+}
+
+.h-identity-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.h-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.01em;
+    line-height: 1;
+}
+
+.h-role {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--acento);
+    opacity: .75;
+}
+
+.h-disponible {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+}
+
+/* ── Centro: título ── */
+.h-titulo-wrap {
+    text-align: center;
+    flex: 1;
+    min-width: 220px;
+}
+
+/* ── Derecha: badges ── */
+.h-badges-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+/* ── Responsive: columna en móvil ── */
+@media (max-width: 720px) {
+    .h-profile-bar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.8rem 1.2rem 1.4rem;
+    }
+    .h-identity { flex-direction: column; }
+    .h-identity-text { align-items: center; }
+    .h-badges-wrap { flex-direction: row; align-items: center; }
+    .h-titulo-wrap { order: -1; }
+}

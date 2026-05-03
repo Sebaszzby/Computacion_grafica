@@ -1,22 +1,27 @@
-<!-- sections/hero.html — fondo propio, sin video -->
+<!-- sections/hero.html -->
+<!-- Fondo: lo da #slot-hero en styles.css (background:#080f18) -->
 
 <section class="hero" id="hero">
 
+    <!-- Texto izquierda / arriba en mobile -->
     <div class="hero-text">
         <div class="hero-eyebrow">
             <span class="hero-dot"></span>
             <span class="hero-eyebrow-label">Noveno Ciclo · 2026</span>
         </div>
+
         <h2 class="hero-title">
             Computación<br>
             <span class="hero-title-accent">Gráfica</span>
         </h2>
+
         <p class="hero-desc">
             Curso de Ingeniería de Sistemas orientado al estudio de algoritmos,
             transformaciones geométricas y renderizado en tiempo real mediante
             <strong>WebGL</strong>, <strong>Three.js</strong> y técnicas de
             rasterización clásica.
         </p>
+
         <div class="hero-stats">
             <div class="hero-stat">
                 <span class="hero-stat-num" data-target="11">0</span>
@@ -33,6 +38,7 @@
                 <span class="hero-stat-label">Actividades</span>
             </div>
         </div>
+
         <div class="hero-tags">
             <span class="hero-tag">WebGL 2</span>
             <span class="hero-tag">Three.js</span>
@@ -42,6 +48,7 @@
         </div>
     </div>
 
+    <!-- Holograma derecha / arriba en mobile -->
     <div class="hero-hologram" id="hero-hologram">
         <canvas id="holo-canvas"></canvas>
         <div class="holo-ring holo-ring-1"></div>
@@ -59,7 +66,7 @@
 
 </section>
 
-<!-- Separador hero → zona con video -->
+<!-- Separador visual hero → zona con video de fondo -->
 <div class="hero-divider">
     <div class="hero-divider-line"></div>
     <div class="hero-divider-diamond"></div>

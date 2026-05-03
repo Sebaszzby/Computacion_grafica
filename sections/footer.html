@@ -1,17 +1,15 @@
 <!-- sections/footer.html -->
+<!-- NOTA: el JS del footer vive en app.js → initFooter() -->
 <footer class="ft">
 
-    <!-- Línea animada superior -->
     <div class="ft-topline"></div>
-    <!-- Grid de fondo -->
     <div class="ft-grid"></div>
-    <!-- Luces de ambiente -->
     <div class="ft-glow ft-glow-l"></div>
     <div class="ft-glow ft-glow-r"></div>
 
     <div class="ft-body">
 
-        <!-- ── COL 1: Identidad ── -->
+        <!-- COL 1: Identidad -->
         <div class="ft-identity">
             <div class="ft-logo-row">
                 <div class="ft-logo-icon">⬡</div>
@@ -31,12 +29,10 @@
             </div>
         </div>
 
-        <!-- ── COL 2: System Monitor ── -->
+        <!-- COL 2: System Monitor -->
         <div class="ft-monitor-wrap">
             <div class="ft-monitor">
-                <!-- Línea de escaneo -->
                 <div class="ft-scanline"></div>
-
                 <div class="ft-mon-head">
                     <span class="ft-mon-title">System Monitor</span>
                     <div class="ft-mon-status">
@@ -44,26 +40,22 @@
                         <span id="ft-status-label">OPERACIONAL</span>
                     </div>
                 </div>
-
                 <div class="ft-metrics">
-                    <!-- Hora local -->
                     <div class="ft-metric">
                         <span class="ft-metric-icon">◷</span>
-                        <span class="ft-metric-val" id="ft-clock">00:00</span>
+                        <span class="ft-metric-val" id="ft-clock">--:--</span>
                         <span class="ft-metric-label">Hora Local</span>
                     </div>
-                    <!-- Ping simulado -->
                     <div class="ft-metric">
                         <span class="ft-metric-icon">◈</span>
                         <span class="ft-metric-val" id="ft-ping">--ms</span>
-                        <div class="ft-bars" id="ft-bars">
+                        <div class="ft-bars" id="ft-bars" data-level="0">
                             <div class="ft-bar"></div>
                             <div class="ft-bar"></div>
                             <div class="ft-bar"></div>
                             <div class="ft-bar"></div>
                         </div>
                     </div>
-                    <!-- Curso -->
                     <div class="ft-metric ft-metric-wide">
                         <span class="ft-metric-icon">◉</span>
                         <span class="ft-metric-val">CG · 9°</span>
@@ -73,7 +65,7 @@
             </div>
         </div>
 
-        <!-- ── COL 3: Stack + links ── -->
+        <!-- COL 3: Stack + links -->
         <div class="ft-arsenal">
             <div class="ft-pills">
                 <span class="ft-pill">WebGL 2</span>
@@ -111,52 +103,3 @@
     </div>
 
 </footer>
-
-<script>
-/* ── Footer JS inline: reloj + ping + año ── */
-(function initFooter() {
-
-    /* Año */
-    const yr = document.getElementById('ft-year');
-    if (yr) yr.textContent = new Date().getFullYear();
-
-    /* Reloj */
-    function tick() {
-        const el = document.getElementById('ft-clock');
-        if (!el) return;
-        const now = new Date();
-        el.textContent = now.toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', hour12:false });
-    }
-    tick(); setInterval(tick, 1000);
-
-    /* Ping simulado */
-    function updatePing() {
-        const p  = Math.floor(Math.random() * 65) + 15;
-        const el = document.getElementById('ft-ping');
-        const bs = document.getElementById('ft-bars');
-        if (el) el.textContent = p + 'ms';
-        if (bs) bs.dataset.level = p < 30 ? 4 : p < 50 ? 3 : 2;
-    }
-    updatePing(); setInterval(updatePing, 2500);
-
-    /* Estado online/offline */
-    function checkOnline() {
-        const lbl = document.getElementById('ft-status-label');
-        const dot = document.querySelector('.ft-status-dot');
-        if (!lbl || !dot) return;
-        if (navigator.onLine) {
-            lbl.textContent = 'OPERACIONAL';
-            dot.style.background = 'var(--acento)';
-            dot.style.boxShadow  = '0 0 8px var(--acento)';
-        } else {
-            lbl.textContent = 'OFFLINE';
-            dot.style.background = '#ff4455';
-            dot.style.boxShadow  = '0 0 8px #ff4455';
-        }
-    }
-    checkOnline();
-    window.addEventListener('online',  checkOnline);
-    window.addEventListener('offline', checkOnline);
-
-})();
-</script>

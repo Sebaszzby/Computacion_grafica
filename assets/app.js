@@ -304,6 +304,58 @@ function startHologram(canvas, W, H) {
 }
 
 /* ════════════════════════════════════════
+   FOOTER — reloj, ping y estado
+   (Scripts inline en innerHTML no ejecutan
+    — la lógica vive aquí en app.js)
+════════════════════════════════════════ */
+function initFooter() {
+    /* Año */
+    const yr = document.getElementById('ft-year');
+    if (yr) yr.textContent = new Date().getFullYear();
+
+    /* Reloj — actualiza cada segundo */
+    function tick() {
+        const el = document.getElementById('ft-clock');
+        if (!el) return;
+        el.textContent = new Date().toLocaleTimeString('es-PE', {
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    /* Ping simulado — actualiza cada 2.5s */
+    function updatePing() {
+        const ping = Math.floor(Math.random() * 65) + 15;
+        const elP  = document.getElementById('ft-ping');
+        const elB  = document.getElementById('ft-bars');
+        if (elP) elP.textContent = ping + 'ms';
+        if (elB) elB.dataset.level = ping < 30 ? '4' : ping < 50 ? '3' : '2';
+    }
+    updatePing();
+    setInterval(updatePing, 2500);
+
+    /* Estado online / offline */
+    function checkOnline() {
+        const lbl = document.getElementById('ft-status-label');
+        const dot = document.querySelector('.ft-status-dot');
+        if (!lbl || !dot) return;
+        if (navigator.onLine) {
+            lbl.textContent      = 'OPERACIONAL';
+            dot.style.background = 'var(--acento)';
+            dot.style.boxShadow  = '0 0 8px var(--acento)';
+        } else {
+            lbl.textContent      = 'OFFLINE';
+            dot.style.background = '#ff4455';
+            dot.style.boxShadow  = '0 0 8px #ff4455';
+        }
+    }
+    checkOnline();
+    window.addEventListener('online',  checkOnline);
+    window.addEventListener('offline', checkOnline);
+}
+
+/* ════════════════════════════════════════
    PUNTO DE ENTRADA
 ════════════════════════════════════════ */
 async function init() {
@@ -312,6 +364,7 @@ async function init() {
     initModalVisor();
     initVideoRotation();
     initHero();
+    initFooter();
 }
 
 document.addEventListener('DOMContentLoaded', init);

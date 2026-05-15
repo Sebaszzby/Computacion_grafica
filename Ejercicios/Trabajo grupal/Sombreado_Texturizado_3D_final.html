@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>Sombreado y Texturizado de Objetos 3D</title>
+ 
+<!-- ES Module Shims: hace que importmap funcione en iOS Safari < 16.4 -->
+<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.8.3/dist/es-module-shims.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+  }
+}
+</script>
+ 
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+ 
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+ 
+  :root {
+    --bg:        #050a14;
+    --panel:     #0a1628;
+    --border:    #1a3a5c;
+    --accent1:   #00d4ff;
+    --accent2:   #7c3aed;
+    --accent3:   #10b981;
+    --text:      #e2e8f0;
+    --muted:     #64748b;
+    --glow1:     0 0 20px rgba(0,212,255,.4);
+    --glow2:     0 0 20px rgba(124,58,237,.4);
+  }
+ 
+  html, body {
+    width:100%; height:100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    overflow: hidden;
+  }
+ 
+  /* ── HEADER ── */
+  #header {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    height: 62px;
+    background: linear-gradient(90deg, #020817 0%, #0a1628 50%, #020817 100%);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    backdrop-filter: blur(8px);
+  }
+  #header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem; font-weight:800; letter-spacing:.08em;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 12px rgba(0,212,255,.5));
+  }
+  #header .subtitle {
+    font-family:'Exo 2', sans-serif;
+    font-size:.7rem; color: var(--muted); letter-spacing:.15em;
+    text-transform:uppercase;
+  }
+ 
+  /* ── CANVAS ── */
+  #canvas-container {
+    position: fixed; inset:62px 340px 0 0;
+    background: radial-gradient(ellipse at 40% 40%, #0d1f3c 0%, #050a14 65%, #020610 100%);
+  }
+  #canvas-container canvas { width:100%!important; height:100%!important; display:block; }
+ 
+  /* ── RIGHT PANEL ── */
+  #panel {
+    position: fixed; top:62px; right:0; bottom:0; width:340px;
+    background: linear-gradient(180deg, #0a1628 0%, #060d1a 100%);
+    border-left: 1px solid var(--border);
+    overflow-y: auto; overflow-x: hidden;
+    padding: 0 0 24px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  #panel::-webkit-scrollbar { width:4px; }
+  #panel::-webkit-scrollbar-track { background:transparent; }
+  #panel::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+ 
+  /* ── TABS ── */
+  #tabs {
+    display:flex; border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:10;
+    background: #0a1628;
+  }
+  .tab-btn {
+    flex:1; padding:12px 4px;
+    background:none; border:none; cursor:pointer;
+    font-family:'Orbitron',sans-serif; font-size:.55rem; letter-spacing:.08em;
+    color: var(--muted); transition: color .2s, border-color .2s;
+    border-bottom:2px solid transparent;
+    text-transform:uppercase;
+  }
+  .tab-btn:hover { color: var(--accent1); }
+  .tab-btn.active { color: var(--accent1); border-bottom-color: var(--accent1); }
+ 
+  /* ── SECTION CARDS ── */
+  .section-content { display:none; padding:16px; }
+  .section-content.active { display:block; }
+ 
+  .card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color .25s, box-shadow .25s;
+    cursor:pointer;
+  }
+  .card:hover { border-color: var(--accent1); box-shadow: var(--glow1); }
+  .card.selected { border-color: var(--accent1); box-shadow: var(--glow1); background: rgba(0,212,255,.06); }
+ 
+  .card-title {
+    font-family:'Orbitron',sans-serif;
+    font-size:.7rem; font-weight:700; letter-spacing:.1em;
+    color: var(--accent1); margin-bottom:6px;
+    text-transform:uppercase;
+  }
+  .card-badge {
+    display:inline-block; font-family:'JetBrains Mono',monospace;
+    font-size:.6rem; padding:2px 8px; border-radius:20px;
+    background: rgba(0,212,255,.1); border:1px solid rgba(0,212,255,.3);
+    color: var(--accent1); margin-bottom:8px;
+  }
+  .card p {
+    font-size:.78rem; line-height:1.6; color:#94a3b8; font-weight:300;
+  }
+  .card .formula {
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem; color: var(--accent3);
+    background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.2);
+    border-radius:6px; padding:8px 10px; margin-top:8px; line-height:1.7;
+  }
+ 
+  /* ── CONTROLS INSIDE PANEL ── */
+  .ctrl-group { margin-bottom:14px; }
+  .ctrl-label {
+    font-family:'JetBrains Mono',monospace;
+    font-size:.62rem; color: var(--muted); letter-spacing:.1em;
+    display:flex; justify-content:space-between; margin-bottom:6px;
+    text-transform:uppercase;
+  }
+  .ctrl-label span { color: var(--accent1); }
+  input[type=range] {
+    width:100%; height:4px; accent-color: var(--accent1);
+    cursor:pointer; border-radius:4px;
+  }
+ 
+  /* ── SHAPE PICKER ── */
+  .shape-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+  .shape-btn {
+    background:rgba(255,255,255,.03); border:1px solid var(--border);
+    border-radius:8px; padding:10px 6px;
+    font-family:'Exo 2',sans-serif; font-size:.72rem;
+    color: var(--muted); cursor:pointer; transition:.2s;
+    text-align:center; line-height:1.3;
+  }
+  .shape-btn:hover { border-color:var(--accent2); color:var(--text); }
+  .shape-btn.active { border-color:var(--accent2); color:var(--text); background:rgba(124,58,237,.15); box-shadow:var(--glow2); }
+  .shape-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+ 
+  /* ── MODE SWITCHER ── */
+  .mode-row { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .mode-btn {
+    flex:1; min-width:90px;
+    background:rgba(255,255,255,.03); border:1px solid var(--border);
+    border-radius:6px; padding:8px 6px;
+    font-family:'Orbitron',sans-serif; font-size:.55rem; letter-spacing:.06em;
+    color: var(--muted); cursor:pointer; transition:.2s; text-align:center;
+    text-transform:uppercase;
+  }
+  .mode-btn:hover { border-color:var(--accent1); color:var(--accent1); }
+  .mode-btn.active { background:rgba(0,212,255,.1); border-color:var(--accent1); color:var(--accent1); }
+ 
+  /* ── INFO BOX ── */
+  #info-box {
+    position:fixed; bottom:20px; left:20px;
+    background:rgba(10,22,40,.92); border:1px solid var(--border);
+    border-radius:10px; padding:14px 18px; max-width:300px;
+    backdrop-filter:blur(10px); font-size:.75rem;
+    transition: opacity .3s;
+  }
+  #info-box h3 {
+    font-family:'Orbitron',sans-serif; font-size:.68rem;
+    color:var(--accent1); margin-bottom:6px; letter-spacing:.1em;
+  }
+  #info-box p { color:#94a3b8; line-height:1.6; }
+ 
+  /* ── SCANLINES overlay ── */
+  #scanlines {
+    position:fixed; inset:0; pointer-events:none; z-index:200;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+  }
+ 
+  /* ── LOADING ── */
+  #loading {
+    position:fixed; inset:0; z-index:999;
+    background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; transition:opacity .5s;
+  }
+  #loading .lo-title {
+    font-family:'Orbitron',sans-serif; font-size:1rem; letter-spacing:.15em;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 0 12px rgba(0,212,255,.5));
+  }
+  .spinner {
+    width:40px; height:40px; border-radius:50%;
+    border:3px solid rgba(0,212,255,.2);
+    border-top-color:var(--accent1);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .lo-sub { font-family:'Exo 2',sans-serif; font-size:.7rem; color:var(--muted); letter-spacing:.1em; }
+ 
+  /* ── CORNER DECORATIONS ── */
+  .corner { position:fixed; width:20px; height:20px; z-index:150; }
+  .corner-tl { top:70px; left:4px; border-top:1px solid var(--accent1); border-left:1px solid var(--accent1); }
+  .corner-tr { top:70px; right:344px; border-top:1px solid var(--accent1); border-right:1px solid var(--accent1); }
+  .corner-bl { bottom:4px; left:4px; border-bottom:1px solid var(--accent1); border-left:1px solid var(--accent1); }
+  .corner-br { bottom:4px; right:344px; border-bottom:1px solid var(--accent1); border-right:1px solid var(--accent1); }
+ 
+  /* ── FPS ── */
+  #fps {
+    position:fixed; bottom:8px; right:348px;
+    font-family:'JetBrains Mono',monospace; font-size:.6rem;
+    color:var(--muted); letter-spacing:.08em;
+  }
+ 
+  /* ── SECTION TITLE IN PANEL ── */
+  .panel-section-title {
+    font-family:'Orbitron',sans-serif; font-size:.65rem; font-weight:700;
+    letter-spacing:.12em; color:var(--accent2); text-transform:uppercase;
+    margin:16px 0 10px; padding-bottom:6px;
+    border-bottom:1px solid rgba(124,58,237,.3);
+  }
+
+  /* ══════════════════════════════════════════
+     PANEL TOGGLE FAB — always visible
+  ══════════════════════════════════════════ */
+  #panel-fab {
+    position: fixed;
+    bottom: 24px;
+    right: calc(var(--panel-w) + 14px);
+    z-index: 300;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0,212,255,.15), rgba(124,58,237,.2));
+    border: 1.5px solid var(--accent1);
+    color: var(--accent1);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px rgba(0,212,255,.4), 0 2px 14px rgba(0,0,0,.6);
+    transition: right .35s cubic-bezier(.4,0,.2,1), background .2s, transform .2s;
+    backdrop-filter: blur(8px);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    --panel-w: 340px; /* fallback */
+  }
+  #panel-fab:hover {
+    background: linear-gradient(135deg, rgba(0,212,255,.3), rgba(124,58,237,.35));
+    box-shadow: 0 0 30px rgba(0,212,255,.6), 0 2px 18px rgba(0,0,0,.6);
+    transform: scale(1.1);
+  }
+  #panel-fab:active { transform: scale(.92); }
+
+  /* Tooltip */
+  #panel-fab::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: 52px;
+    background: rgba(6,12,26,.96);
+    border: 1px solid var(--border);
+    color: var(--accent1);
+    font-family: 'Orbitron', sans-serif;
+    font-size: .46rem; letter-spacing: .08em;
+    white-space: nowrap;
+    padding: 4px 9px; border-radius: 6px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  #panel-fab:hover::after { opacity: 1; }
+
+  /* Icon flip on hidden */
+  #panel-fab svg { width: 18px; height: 18px; transition: transform .35s; }
+
+  /* ── Panel hidden state ── */
+  body.panel-hidden #panel-fab {
+    right: 14px;
+  }
+  body.panel-hidden #panel-fab svg { transform: scaleX(-1); }
+
+  /* Smooth panel slide out */
+  #panel {
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  body.panel-hidden #panel {
+    transform: translateX(100%);
+  }
+
+  /* Canvas + corners + fps expand when panel hidden (desktop) */
+  #canvas-container {
+    transition: right .35s cubic-bezier(.4,0,.2,1);
+  }
+  body.panel-hidden #canvas-container {
+    right: 0;
+  }
+  body.panel-hidden .corner-tr { right: 4px; }
+  body.panel-hidden .corner-br { right: 4px; }
+  body.panel-hidden #fps       { right: 56px; }
+
+  /* ══════════════════════════════════════════
+     MOBILE RESPONSIVE (≤ 700px)
+  ══════════════════════════════════════════ */
+  @media (max-width: 700px) {
+    :root {
+      --panel-w: 0px;
+    }
+
+    /* Header shrinks */
+    #header {
+      height: 50px;
+      padding: 0 12px;
+    }
+    #header h1 { font-size: clamp(.52rem,3.5vw,.78rem); letter-spacing:.04em; }
+    #header .subtitle { display: none; }
+
+    /* Canvas: full width, leaves room for bottom nav */
+    #canvas-container {
+      right: 0 !important;
+      top: 50px;
+      bottom: 50px;
+    }
+
+    /* Panel slides up from bottom as a drawer */
+    #panel {
+      position: fixed;
+      top: auto !important;
+      left: 0; right: 0; bottom: 0;
+      width: 100%;
+      height: 62vh;
+      border-left: none;
+      border-top: 1.5px solid var(--accent1);
+      border-radius: 18px 18px 0 0;
+      transform: translateY(100%);
+      box-shadow: 0 -8px 40px rgba(0,212,255,.15);
+    }
+    #panel.drawer-open {
+      transform: translateY(0) !important;
+    }
+    /* Panel hidden always = closed drawer on mobile */
+    body.panel-hidden #panel {
+      transform: translateY(100%) !important;
+    }
+
+    /* Drag handle at top of drawer */
+    #panel::before {
+      content: '';
+      display: block;
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 10px auto 2px;
+    }
+
+    /* Mobile bottom navigation bar */
+    #mobile-bottom-nav {
+      display: flex;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 50px;
+      background: rgba(5,10,20,.97);
+      border-top: 1px solid var(--border);
+      z-index: 200;
+    }
+    .mbn-btn {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Orbitron', sans-serif; font-size: .43rem; letter-spacing: .07em;
+      color: var(--muted); text-transform: uppercase;
+      transition: color .15s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      border-top: 2px solid transparent;
+    }
+    .mbn-btn.active { color: var(--accent1); border-top-color: var(--accent1); }
+    .mbn-btn.active .mbn-icon { filter: drop-shadow(0 0 5px var(--accent1)); }
+    .mbn-icon { font-size: 1rem; line-height: 1; }
+
+    /* FAB repositioned on mobile */
+    #panel-fab {
+      display: none; /* replaced by bottom nav on mobile */
+    }
+
+    /* Info box above bottom nav */
+    #info-box {
+      left: 8px; right: 8px;
+      bottom: 58px;
+      max-width: 100%;
+      font-size: .68rem;
+      padding: 9px 12px;
+    }
+
+    /* Tabs inside drawer: bigger touch targets */
+    .tab-btn { padding: 14px 4px; font-size: .5rem; }
+
+    /* FPS inside canvas area */
+    #fps { right: 8px !important; bottom: 58px; }
+
+    /* Hide desktop corners on mobile */
+    .corner { display: none; }
+  }
+
+  /* Very small phones */
+  @media (max-width: 380px) {
+    #header h1 { font-size: .52rem; }
+    .mbn-btn { font-size: .38rem; }
+    .mbn-icon { font-size: .9rem; }
+  }
+
+  /* Tablet (701–900px): narrower panel */
+  @media (min-width: 701px) and (max-width: 900px) {
+    :root { --panel-w: 270px; }
+    #panel-fab { --panel-w: 270px; }
+  }
+
+  /* Hide mobile bottom nav on desktop */
+  @media (min-width: 701px) {
+    #mobile-bottom-nav { display: none !important; }
+  }
+</style>
+</head>
+<body>
+ 
+<!-- Loading Screen -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="lo-title">SOMBREADO &amp; TEXTURIZADO 3D</div>
+  <div class="lo-sub">Iniciando motor holográfico…</div>
+</div>
+ 
+<!-- Scanlines -->
+<div id="scanlines"></div>
+ 
+<!-- Corner decorations -->
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+ 
+<!-- Header -->
+<div id="header">
+  <!-- Mini icon: cubo 3D holográfico -->
+  <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-right:8px" aria-hidden="true">
+    <defs>
+      <radialGradient id="hbg" cx="40%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#00eeff"/>
+        <stop offset="55%" stop-color="#7c3aed"/>
+        <stop offset="100%" stop-color="#020817"/>
+      </radialGradient>
+      <linearGradient id="hln" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#00d4ff"/>
+        <stop offset="100%" stop-color="#7c3aed"/>
+      </linearGradient>
+    </defs>
+    <!-- Glow circle background -->
+    <circle cx="19" cy="19" r="18" fill="url(#hbg)" opacity=".85"/>
+    <circle cx="19" cy="19" r="18" fill="none" stroke="#00d4ff" stroke-width="1" opacity=".5"/>
+    <!-- Isometric cube faces -->
+    <!-- Top face -->
+    <polygon points="19,5 31,12 19,19 7,12" fill="#00d4ff" opacity=".22"/>
+    <!-- Left face -->
+    <polygon points="7,12 19,19 19,32 7,25" fill="#7c3aed" opacity=".28"/>
+    <!-- Right face -->
+    <polygon points="31,12 31,25 19,32 19,19" fill="#00d4ff" opacity=".14"/>
+    <!-- Cube edges -->
+    <polygon points="19,5 31,12 19,19 7,12" fill="none" stroke="url(#hln)" stroke-width="1.4"/>
+    <polygon points="7,12 19,19 19,32 7,25" fill="none" stroke="url(#hln)" stroke-width="1.4"/>
+    <polygon points="31,12 31,25 19,32 19,19" fill="none" stroke="url(#hln)" stroke-width="1.4"/>
+    <!-- Inner diagonals -->
+    <line x1="19" y1="5"  x2="19" y2="19" stroke="url(#hln)" stroke-width=".9" opacity=".7"/>
+    <line x1="7"  y1="12" x2="19" y2="19" stroke="url(#hln)" stroke-width=".9" opacity=".7"/>
+    <line x1="31" y1="12" x2="19" y2="19" stroke="url(#hln)" stroke-width=".9" opacity=".7"/>
+    <!-- Specular dot -->
+    <circle cx="15" cy="11" r="2.5" fill="white" opacity=".28"/>
+  </svg>
+  <div style="min-width:0;flex:1">
+    <h1>SOMBREADO &amp; TEXTURIZADO DE OBJETOS 3D</h1>
+    <div class="subtitle">Computación Gráfica · Visualización Interactiva</div>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);flex-shrink:0">
+    <span id="mode-label" style="color:var(--accent1)">PHONG</span> · WebGL 2.0
+  </div>
+</div>
+
+<!-- ── PANEL TOGGLE FAB ── -->
+<button id="panel-fab" data-tip="OCULTAR PANEL" onclick="togglePanelFab()" aria-label="Toggle panel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <line x1="15" y1="3" x2="15" y2="21"/>
+    <polyline points="11 8 8 12 11 16"/>
+  </svg>
+</button>
+ 
+<!-- Canvas -->
+<div id="canvas-container"></div>
+ 
+<!-- Right panel -->
+<div id="panel">
+  <!-- Tabs -->
+  <div id="tabs">
+    <button class="tab-btn active" onclick="switchTab('shading')">Sombreado</button>
+    <button class="tab-btn"        onclick="switchTab('textures')">Texturas</button>
+    <button class="tab-btn"        onclick="switchTab('controls')">Control</button>
+  </div>
+ 
+  <!-- ── TAB: SOMBREADO ── -->
+  <div id="tab-shading" class="section-content active">
+    <div class="panel-section-title">Modelos de Iluminación</div>
+ 
+    <div class="card selected" id="card-phong" onclick="selectShading('phong', this)">
+      <div class="card-badge">PHONG</div>
+      <div class="card-title">Modelo de Phong</div>
+      <p>Combina luz ambiental, difusa y especular. Interpolación por píxel (per-pixel shading) para bordes suaves y reflejos realistas.</p>
+      <div class="formula">
+        I = Iₐ·kₐ + Iᵈ·kᵈ·(N·L) + Iₛ·kₛ·(R·V)ⁿ
+      </div>
+    </div>
+ 
+    <div class="card" id="card-flat" onclick="selectShading('flat', this)">
+      <div class="card-badge">FLAT</div>
+      <div class="card-title">Sombreado Plano</div>
+      <p>Un color uniforme por cara poligonal. Normal calculada una sola vez por triángulo. Eficiente pero produce aspecto facetado.</p>
+      <div class="formula">
+        Nₜ = (v₁−v₀) × (v₂−v₀)
+        <br>I = Iᵈ · (Nₜ · L)
+      </div>
+    </div>
+ 
+    <div class="card" id="card-gouraud" onclick="selectShading('gouraud', this)">
+      <div class="card-badge">GOURAUD</div>
+      <div class="card-title">Sombreado Gouraud</div>
+      <p>Interpolación de colores entre vértices. Más suave que Flat pero puede perder detalles especulares en el interior de polígonos.</p>
+      <div class="formula">
+        Iₓ = (1−t)·I₀ + t·I₁
+        <br>(interpolación baricéntrica)
+      </div>
+    </div>
+ 
+    <div class="card" id="card-cel" onclick="selectShading('cel', this)">
+      <div class="card-badge">CEL / TOON</div>
+      <div class="card-title">Sombreado Cel</div>
+      <p>Posterización de la iluminación en niveles discretos. Produce efecto de dibujo animado / manga con contornos marcados.</p>
+      <div class="formula">
+        steps = 4
+        <br>I = floor(I·steps) / steps
+      </div>
+    </div>
+ 
+    <div class="card" id="card-normal" onclick="selectShading('normal', this)">
+      <div class="card-badge">NORMAL MAP</div>
+      <div class="card-title">Mapa de Normales</div>
+      <p>Codifica perturbaciones de normales en una textura RGB. Simula relieves geométricos sin añadir polígonos al modelo.</p>
+      <div class="formula">
+        N' = normalize(TBN · (tex.rgb·2−1))
+      </div>
+    </div>
+ 
+    <div class="card" id="card-pbr" onclick="selectShading('pbr', this)">
+      <div class="card-badge">PBR</div>
+      <div class="card-title">Physically Based Rendering</div>
+      <p>Simulación de propiedades físicas reales: metalicidad, rugosidad, oclusión ambiental. Estándar en motores modernos.</p>
+      <div class="formula">
+        f(l,v) = (D·F·G) / (4·(N·L)·(N·V))
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── TAB: TEXTURAS ── -->
+  <div id="tab-textures" class="section-content">
+    <div class="panel-section-title">Tipos de Textura</div>
+ 
+    <div class="card" onclick="selectTexture('color')">
+      <div class="card-badge">DIFFUSE MAP</div>
+      <div class="card-title">Mapa de Color / Albedo</div>
+      <p>Textura base que define el color de la superficie sin considerar iluminación. Primer layer en todo pipeline.</p>
+    </div>
+ 
+    <div class="card" onclick="selectTexture('checker')">
+      <div class="card-badge">PROCEDURAL</div>
+      <div class="card-title">Textura Procedural (Checker)</div>
+      <p>Generada matemáticamente sin imagen fuente. Infinitamente escalable, sin artefactos de pixelado ni costura UV.</p>
+      <div class="formula">c = floor(u·n) + floor(v·n) mod 2</div>
+    </div>
+ 
+    <div class="card" onclick="selectTexture('gradient')">
+      <div class="card-badge">GRADIENT</div>
+      <div class="card-title">Degradado UV</div>
+      <p>Visualiza el espacio UV del modelo. Los colores R y G representan las coordenadas U y V del mapeo de textura.</p>
+    </div>
+ 
+    <div class="card" onclick="selectTexture('wireframe')">
+      <div class="card-badge">WIREFRAME</div>
+      <div class="card-title">Malla Poligonal</div>
+      <p>Muestra la estructura geométrica del objeto. Permite analizar la distribución de vértices, aristas y polígonos.</p>
+    </div>
+ 
+    <div class="card" onclick="selectTexture('emissive')">
+      <div class="card-badge">EMISSIVE</div>
+      <div class="card-title">Material Emisivo</div>
+      <p>Superficie que emite luz propia. Simula LEDs, pantallas o materiales luminosos. No requiere iluminación externa.</p>
+    </div>
+ 
+    <div class="card" onclick="selectTexture('metal')">
+      <div class="card-badge">METALLIC + ROUGHNESS</div>
+      <div class="card-title">Metal Rayado (PBR)</div>
+      <p>Metalicidad 1.0 con mapa de rugosidad procedural. Reflejo anisotrópico que simula acero cepillado con rasguños y reflejos variables.</p>
+    </div>
+
+    <div class="card" onclick="selectTexture('wood')">
+      <div class="card-badge">PROCEDURAL WOOD</div>
+      <div class="card-title">Madera Procedural</div>
+      <p>Anillos de madera generados mediante funciones sinusoidales con ruido. Simula la veta de madera natural sin ninguna imagen fuente.</p>
+      <div class="formula">v = sin(dist·0.18 + noise(x,y)) × 0.5 + 0.5</div>
+    </div>
+
+    <div class="card" onclick="selectTexture('marble')">
+      <div class="card-badge">PROCEDURAL MARBLE</div>
+      <div class="card-title">Mármol Procedural</div>
+      <p>Vetas de mármol generadas con turbulencia: suma de capas sinusoidales a distintas frecuencias. Patrón infinito y continuo.</p>
+      <div class="formula">t = sin(x·6 + turbulence(x,y,4) · 3)</div>
+    </div>
+
+    <div class="card" onclick="selectTexture('displacement')">
+      <div class="card-badge">BUMP + DISPLACEMENT</div>
+      <div class="card-title">Relieve / Bump Map</div>
+      <p>Mapa de alturas sinusoidal aplicado como bumpMap. Perturba las normales por píxel para simular relieve sin modificar la geometría real.</p>
+      <div class="formula">N' = N + bumpScale · ∇height(uv)</div>
+    </div>
+  </div>
+ 
+  <!-- ── TAB: CONTROLES ── -->
+  <div id="tab-controls" class="section-content">
+    <div class="panel-section-title">Geometría</div>
+ 
+    <div class="shape-grid">
+      <button class="shape-btn active" id="shape-sphere"   onclick="setShape('sphere')">
+        <span class="shape-icon">⬤</span>Esfera
+      </button>
+      <button class="shape-btn" id="shape-torus"    onclick="setShape('torus')">
+        <span class="shape-icon">◎</span>Toro
+      </button>
+      <button class="shape-btn" id="shape-box"      onclick="setShape('box')">
+        <span class="shape-icon">⬛</span>Cubo
+      </button>
+      <button class="shape-btn" id="shape-cylinder" onclick="setShape('cylinder')">
+        <span class="shape-icon">⬛</span>Cilindro
+      </button>
+      <button class="shape-btn" id="shape-cone"     onclick="setShape('cone')">
+        <span class="shape-icon">▲</span>Cono
+      </button>
+      <button class="shape-btn" id="shape-knot"     onclick="setShape('knot')">
+        <span class="shape-icon">∞</span>Nudo
+      </button>
+    </div>
+ 
+    <div class="panel-section-title">Iluminación</div>
+ 
+    <div class="mode-row">
+      <button class="mode-btn active" id="light-point"       onclick="setLight('point')">Point</button>
+      <button class="mode-btn"        id="light-directional" onclick="setLight('directional')">Directional</button>
+      <button class="mode-btn"        id="light-spot"        onclick="setLight('spot')">Spot</button>
+    </div>
+ 
+    <div class="ctrl-group">
+      <div class="ctrl-label">Intensidad <span id="lbl-intensity">4.0</span></div>
+      <input type="range" min="0" max="10" step="0.1" value="4.0"
+             oninput="setIntensity(this.value)"/>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Metalicidad <span id="lbl-metal">0.1</span></div>
+      <input type="range" min="0" max="1" step="0.01" value="0.1"
+             oninput="setMetal(this.value)"/>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Rugosidad <span id="lbl-rough">0.5</span></div>
+      <input type="range" min="0" max="1" step="0.01" value="0.5"
+             oninput="setRough(this.value)"/>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Velocidad rotación <span id="lbl-speed">0.5</span></div>
+      <input type="range" min="0" max="3" step="0.1" value="0.5"
+             oninput="setSpeed(this.value)"/>
+    </div>
+ 
+    <div class="panel-section-title">Entorno</div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="env-dark"  onclick="setEnv('dark')">Oscuro</button>
+      <button class="mode-btn"        id="env-light" onclick="setEnv('light')">Claro</button>
+      <button class="mode-btn"        id="env-stars" onclick="setEnv('stars')">Cosmos</button>
+    </div>
+ 
+    <div class="panel-section-title">Ayuda</div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.8;font-family:'Exo 2',sans-serif;padding:0 4px">
+      🖱️ <b style="color:var(--text)">Arrastrar</b> — rotar cámara<br>
+      🖱️ <b style="color:var(--text)">Scroll</b> — zoom<br>
+      🖱️ <b style="color:var(--text)">Clic derecho + arrastrar</b> — mover<br>
+      📱 <b style="color:var(--text)">Touch</b> — pellizcar para zoom
+    </div>
+  </div>
+</div>
+ 
+<!-- Info Box -->
+<div id="info-box">
+  <h3 id="info-title">PHONG SHADING</h3>
+  <p id="info-desc">Modelo estándar de iluminación por píxel. Haz clic en cualquier tarjeta del panel para ver información detallada.</p>
+</div>
+
+<!-- Mobile bottom navigation -->
+<nav id="mobile-bottom-nav">
+  <button class="mbn-btn active" id="mbn-shading" onclick="mobileNavTab('shading')">
+    <span class="mbn-icon">💡</span>Sombreado
+  </button>
+  <button class="mbn-btn" id="mbn-textures" onclick="mobileNavTab('textures')">
+    <span class="mbn-icon">🎨</span>Texturas
+  </button>
+  <button class="mbn-btn" id="mbn-controls" onclick="mobileNavTab('controls')">
+    <span class="mbn-icon">⚙️</span>Control
+  </button>
+  <button class="mbn-btn" id="mbn-close" onclick="closeDrawer()">
+    <span class="mbn-icon">✕</span>Cerrar
+  </button>
+</nav>
+ 
+<div id="fps">FPS: --</div>
+ 
+<!-- ═══════════════════════════ MAIN SCRIPT (ES Module) ═══════════════════════════ -->
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+ 
+// ─── STATE ───────────────────────────────────────────────────────
+let scene, camera, renderer, controls;
+let mainMesh, lightHelper, orbitLight;
+let rotSpeed = 0.5;
+let currentShading = 'phong';
+let currentShape   = 'sphere';
+let currentLight   = 'point';
+let pointLight, dirLight, spotLight, activeLight;
+let stars;
+let fpsCnt = 0, fpsLast = performance.now();
+ 
+// ─── MOBILE DETECTION ────────────────────────────────────────────
+const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth <= 700;
+
+// ─── PANEL FAB TOGGLE (desktop) ───────────────────────────────────
+window.togglePanelFab = function() {
+  const hidden = document.body.classList.toggle('panel-hidden');
+  const fab = document.getElementById('panel-fab');
+  fab.setAttribute('data-tip', hidden ? 'MOSTRAR PANEL' : 'OCULTAR PANEL');
+  // also resize renderer after transition
+  setTimeout(() => {
+    onResize && onResize();
+  }, 370);
+};
+
+// ─── MOBILE DRAWER ────────────────────────────────────────────────
+window.mobileNavTab = function(tab) {
+  const panel = document.getElementById('panel');
+  const already = panel.classList.contains('drawer-open') && panel.dataset.tab === tab;
+  // toggle: if same tab clicked, close; else open and switch
+  document.querySelectorAll('.mbn-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mbn-' + tab).classList.add('active');
+  if (already) {
+    panel.classList.remove('drawer-open');
+    panel.dataset.tab = '';
+  } else {
+    panel.classList.add('drawer-open');
+    panel.dataset.tab = tab;
+    switchTab(tab);
+  }
+};
+
+window.closeDrawer = function() {
+  document.getElementById('panel').classList.remove('drawer-open');
+  document.querySelectorAll('.mbn-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mbn-close').classList.add('active');
+};
+
+// Close drawer when tapping canvas on mobile
+document.getElementById('canvas-container').addEventListener('pointerdown', () => {
+  if (window.innerWidth <= 700) {
+    document.getElementById('panel').classList.remove('drawer-open');
+  }
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────
+function init() {
+  const container = document.getElementById('canvas-container');
+ 
+  // Scene
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x060c1a);
+  // No fog — it was darkening the object too much
+ 
+  // Camera — alejada en mobile para que el objeto no tape la pantalla
+  const _isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const _camZ  = (isMobile || _isIOS) ? 7.5 : 4.5;  // más lejos en móvil
+  camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 500);
+  camera.position.set(0, 1.2, _camZ);
+ 
+  // Renderer — adaptado para iOS/Android
+  const _isMobAny = isMobile || _isIOS;
+  renderer = new THREE.WebGLRenderer({
+    antialias: !_isMobAny,
+    powerPreference: 'high-performance',
+    precision: _isMobAny ? 'mediump' : 'highp',
+  });
+  renderer.setPixelRatio(_isMobAny ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.shadowMap.enabled = !_isMobAny;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.5;
+  container.appendChild(renderer.domElement);
+ 
+  // Controls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 1.5;
+  controls.maxDistance = 15;
+ 
+  // Reflective grid floor
+  const grid = new THREE.GridHelper(20, 40, 0x1a3a5c, 0x0a1e38);
+  grid.position.y = -1.8;
+  scene.add(grid);
+
+  // Shadow-receiving floor plane (invisible but catches shadows)
+  const floorGeo = new THREE.PlaneGeometry(30, 30);
+  const floorMat = new THREE.ShadowMaterial({ opacity: 0.65 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -1.82;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // Glowing ring under the object
+  const ringGeo = new THREE.RingGeometry(0.8, 1.6, 64);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0x00d4ff, side: THREE.DoubleSide,
+    transparent: true, opacity: 0.18,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = -1.78;
+  scene.add(ring);
+
+  // Second outer ring
+  const ring2Geo = new THREE.RingGeometry(1.7, 1.85, 64);
+  const ring2Mat = new THREE.MeshBasicMaterial({
+    color: 0x7c3aed, side: THREE.DoubleSide,
+    transparent: true, opacity: 0.12,
+    blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+  ring2.rotation.x = -Math.PI / 2;
+  ring2.position.y = -1.77;
+  scene.add(ring2);
+ 
+  // Stars
+  buildStars();
+ 
+  // Lights — dramatic contrast with strong key + shadow casting
+  const ambient = new THREE.AmbientLight(0x0d1a33, 1.2);   // very dim ambient — forces real shadows
+  scene.add(ambient);
+
+  // Cool fill from top-left (reduces pitch-black areas)
+  const fillLight = new THREE.DirectionalLight(0x334d80, 1.4);
+  fillLight.position.set(-5, 8, -4);
+  scene.add(fillLight);
+
+  // Warm rim backlight — creates separation from background
+  const rimLight = new THREE.DirectionalLight(0x7c3aed, 2.2);
+  rimLight.position.set(0, -2, -6);
+  scene.add(rimLight);
+
+  pointLight = new THREE.PointLight(0x00d4ff, 6.0, 28);
+  pointLight.position.set(3, 3, 3);
+  pointLight.castShadow = true;
+  pointLight.shadow.mapSize.set(2048, 2048);
+  pointLight.shadow.camera.near = 0.1;
+  pointLight.shadow.camera.far = 30;
+  pointLight.shadow.bias = -0.002;
+  pointLight.shadow.radius = 3;
+  scene.add(pointLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 5.0);
+  dirLight.position.set(5, 10, 5);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.set(2048, 2048);
+  dirLight.shadow.camera.near = 0.1;
+  dirLight.shadow.camera.far = 40;
+  dirLight.shadow.camera.left = -8;
+  dirLight.shadow.camera.right = 8;
+  dirLight.shadow.camera.top = 8;
+  dirLight.shadow.camera.bottom = -8;
+  dirLight.shadow.bias = -0.001;
+  dirLight.shadow.radius = 4;
+  dirLight.visible = false;
+  scene.add(dirLight);
+
+  spotLight = new THREE.SpotLight(0xaa88ff, 12.0, 22, Math.PI/5, 0.15);
+  spotLight.position.set(0, 6, 2);
+  spotLight.castShadow = true;
+  spotLight.shadow.mapSize.set(2048, 2048);
+  spotLight.shadow.bias = -0.001;
+  spotLight.shadow.radius = 3;
+  spotLight.visible = false;
+  scene.add(spotLight);
+ 
+  activeLight = pointLight;
+ 
+  // Light orbit indicator
+  const lhGeo = new THREE.SphereGeometry(0.12, 8, 8);
+  const lhMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff });
+  lightHelper = new THREE.Mesh(lhGeo, lhMat);
+  scene.add(lightHelper);
+ 
+  // Initial mesh
+  buildMesh('sphere');
+ 
+  // Resize
+  window.addEventListener('resize', onResize);
+ 
+  // Hide loading
+  setTimeout(() => {
+    const l = document.getElementById('loading');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 500);
+  }, 1200);
+ 
+  animate();
+}
+ 
+// ─── STARS ───────────────────────────────────────────────────────
+function buildStars() {
+  if (stars) scene.remove(stars);
+  const pos = new Float32Array(3000);
+  for (let i = 0; i < 3000; i++) pos[i] = (Math.random() - 0.5) * 200;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  stars = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x88aacc, size: 0.15, transparent: true, opacity: 0 }));
+  scene.add(stars);
+}
+ 
+// ─── GEOMETRIES ──────────────────────────────────────────────────
+function getGeometry(shape) {
+  switch(shape) {
+    case 'sphere':   return new THREE.SphereGeometry(1.2, 64, 64);
+    case 'torus':    return new THREE.TorusGeometry(1, 0.4, 48, 120);
+    case 'box':      return new THREE.BoxGeometry(1.8, 1.8, 1.8, 6, 6, 6);
+    case 'cylinder': return new THREE.CylinderGeometry(0.9, 0.9, 2.4, 64);
+    case 'cone':     return new THREE.ConeGeometry(1.1, 2.5, 64);
+    case 'knot':     return new THREE.TorusKnotGeometry(0.9, 0.3, 200, 20);
+    default:         return new THREE.SphereGeometry(1.2, 64, 64);
+  }
+}
+ 
+// ─── PROCEDURAL TEXTURE BUILDERS ─────────────────────────────────
+
+function buildNormalMapTex(size=512) {
+  // Brick/stone normal map using canvas
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#8080ff'; ctx.fillRect(0,0,size,size);
+  // draw bumpy pattern: rows of stones
+  const bW = size/6, bH = size/4;
+  for (let row=0; row<5; row++) {
+    const offset = (row%2===0) ? 0 : bW*0.5;
+    for (let col=-1; col<8; col++) {
+      const x = col*bW + offset, y = row*bH;
+      // mortar gap normals (slope outward from center)
+      const gx=2, cx=x+bW/2, cy=y+bH/2;
+      // top edge — normal slopes up
+      const grd = ctx.createLinearGradient(x,y,x,y+gx*3);
+      grd.addColorStop(0,'#8080ff'); grd.addColorStop(1,'#8090ff');
+      ctx.fillStyle=grd; ctx.fillRect(x,y,bW,gx*3);
+      // left edge
+      const grd2 = ctx.createLinearGradient(x,y,x+gx*3,y);
+      grd2.addColorStop(0,'#8080ff'); grd2.addColorStop(1,'#9080ff');
+      ctx.fillStyle=grd2; ctx.fillRect(x,y,gx*3,bH);
+      // center highlight — faces camera (blue-ish)
+      const cGrd = ctx.createRadialGradient(cx,cy,0,cx,cy,bW*0.4);
+      cGrd.addColorStop(0,'#9090ff'); cGrd.addColorStop(1,'#7878ee');
+      ctx.fillStyle=cGrd; ctx.fillRect(x+gx*3,y+gx*3,bW-gx*6,bH-gx*6);
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3,3);
+  return tex;
+}
+
+function buildRoughnessGradientTex(size=512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // half mirror / half rough split with noise
+  const img = ctx.createImageData(size,size);
+  for (let y=0;y<size;y++) for (let x=0;x<size;x++) {
+    const i=(y*size+x)*4;
+    const base = x/size; // left=0(mirror), right=1(rough)
+    const noise = (Math.sin(x*0.08)*Math.cos(y*0.08)+1)*0.5*0.15;
+    const v = Math.min(255, Math.round((base+noise)*255));
+    img.data[i]=img.data[i+1]=img.data[i+2]=v; img.data[i+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+  return new THREE.CanvasTexture(c);
+}
+
+function buildWoodTex(size=512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(size,size);
+  for (let y=0;y<size;y++) for (let x=0;x<size;x++) {
+    const i=(y*size+x)*4;
+    const cx=x-size/2, cy=y-size/2;
+    const dist = Math.sqrt(cx*cx+cy*cy);
+    const grain = Math.sin(dist*0.18 + Math.sin(x*0.02)*8 + Math.cos(y*0.015)*6)*0.5+0.5;
+    const noise2 = (Math.sin(x*0.04+y*0.02)*0.5+0.5)*0.15;
+    const v = grain*0.85 + noise2;
+    img.data[i]   = Math.round(120+v*90);   // R warm brown
+    img.data[i+1] = Math.round(55+v*50);    // G
+    img.data[i+2] = Math.round(15+v*20);    // B
+    img.data[i+3] = 255;
+  }
+  ctx.putImageData(img,0,0);
+  return new THREE.CanvasTexture(c);
+}
+
+function buildMarbleTex(size=512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(size,size);
+  // Simple turbulence
+  function noise(x,y,freq) {
+    let v=0,amp=1,f=freq,sum=0;
+    for(let i=0;i<5;i++){v+=Math.sin(x*f+Math.cos(y*f*1.3))*amp;sum+=amp;f*=2;amp*=0.5;}
+    return v/sum;
+  }
+  for (let y=0;y<size;y++) for (let x=0;x<size;x++) {
+    const i=(y*size+x)*4;
+    const t = Math.sin((x/size*6)+noise(x/size,y/size,4)*3)*0.5+0.5;
+    const light = 180+t*60, dark=t*30;
+    img.data[i]   = Math.round(light+dark);
+    img.data[i+1] = Math.round(light+dark);
+    img.data[i+2] = Math.round(light+dark*1.1);
+    img.data[i+3] = 255;
+  }
+  ctx.putImageData(img,0,0);
+  return new THREE.CanvasTexture(c);
+}
+
+function buildScratchedMetalTex(size=512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // Base metallic gradient
+  const grad = ctx.createLinearGradient(0,0,size,size);
+  grad.addColorStop(0,'#c8d4e0'); grad.addColorStop(0.5,'#e8eef8'); grad.addColorStop(1,'#b0bcc8');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,size,size);
+  // Horizontal scratches
+  ctx.save(); ctx.globalAlpha=0.12;
+  for(let i=0;i<180;i++){
+    const y=Math.random()*size;
+    const len=Math.random()*size*0.7+size*0.1;
+    const x0=(size-len)*Math.random();
+    const bright=Math.random()>0.5;
+    ctx.strokeStyle=bright?'#ffffff':'#8899aa';
+    ctx.lineWidth=Math.random()*1.2+0.3;
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x0+len,y+Math.random()*2-1); ctx.stroke();
+  }
+  ctx.restore();
+  // Smudges
+  ctx.globalAlpha=0.06;
+  for(let i=0;i<12;i++){
+    const gx=Math.random()*size,gy=Math.random()*size,gr=Math.random()*60+20;
+    const smudge=ctx.createRadialGradient(gx,gy,0,gx,gy,gr);
+    smudge.addColorStop(0,'#ffffff'); smudge.addColorStop(1,'transparent');
+    ctx.fillStyle=smudge; ctx.fillRect(gx-gr,gy-gr,gr*2,gr*2);
+  }
+  ctx.globalAlpha=1;
+  return new THREE.CanvasTexture(c);
+}
+
+function buildEmissiveTex(size=256) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,size,size);
+  // Hex grid glow
+  const hex = ['#00ffff','#aa44ff','#00ff88','#ff4488'];
+  for(let i=0;i<24;i++){
+    const x=Math.random()*size, y=Math.random()*size;
+    const r=Math.random()*20+8;
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    const col=hex[Math.floor(Math.random()*hex.length)];
+    g.addColorStop(0,col+'ff'); g.addColorStop(1,col+'00');
+    ctx.fillStyle=g; ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+function buildDisplacementLikeTex(size=512) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(size,size);
+  for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+    const i=(y*size+x)*4;
+    const nx=x/size*6, ny=y/size*6;
+    const v=(Math.sin(nx)*Math.cos(ny)+Math.sin(nx*2.1+0.5)*0.5+Math.cos(ny*1.8-0.3)*0.3+1.8)/3.6;
+    const b=Math.round(v*255);
+    img.data[i]=img.data[i+1]=img.data[i+2]=b; img.data[i+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+  return new THREE.CanvasTexture(c);
+}
+
+// ─── MATERIALS ───────────────────────────────────────────────────
+function getMaterial(shading) {
+  switch(shading) {
+    case 'flat':
+      return new THREE.MeshStandardMaterial({
+        color: 0x00eeff, flatShading: true,
+        roughness: 0.55, metalness: 0.25,
+        emissive: new THREE.Color(0x003344), emissiveIntensity: 0.4,
+      });
+    case 'gouraud':
+      return new THREE.MeshLambertMaterial({
+        color: 0xaa44ff,
+        emissive: new THREE.Color(0x220044), emissiveIntensity: 0.5,
+      });
+    case 'cel':
+      return new THREE.MeshToonMaterial({
+        color: 0x22ff88,
+        emissive: new THREE.Color(0x003322), emissiveIntensity: 0.3,
+      });
+    case 'normal':
+      return new THREE.MeshNormalMaterial({ side: THREE.FrontSide });
+    case 'pbr':
+      return new THREE.MeshStandardMaterial({
+        color: 0xddeeff,
+        metalness: 0.92, roughness: 0.08,
+        map: buildScratchedMetalTex(),
+        roughnessMap: buildRoughnessGradientTex(),
+        emissive: new THREE.Color(0x001122), emissiveIntensity: 0.2,
+      });
+    default: // phong
+      return new THREE.MeshPhongMaterial({
+        color: 0x1188ff, specular: 0x88ddff, shininess: 180,
+        emissive: new THREE.Color(0x001133), emissiveIntensity: 0.3,
+      });
+  }
+}
+ 
+function buildMesh(shape) {
+  if (mainMesh) { mainMesh.geometry.dispose(); mainMesh.material.dispose(); scene.remove(mainMesh); }
+  const geo = getGeometry(shape);
+  const mat = getMaterial(currentShading);
+  mainMesh = new THREE.Mesh(geo, mat);
+  mainMesh.castShadow = true;
+  mainMesh.receiveShadow = true;
+  mainMesh.position.y = 0;
+  scene.add(mainMesh);
+}
+ 
+// ─── ANIMATE ─────────────────────────────────────────────────────
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.016;
+
+  // Orbit light — wider arc for more dramatic shadow sweep
+  const r = 4.5;
+  const lx = Math.sin(t * 0.5) * r;
+  const ly = Math.abs(Math.sin(t * 0.3)) * 2.5 + 1.5;  // always above, varied height
+  const lz = Math.cos(t * 0.5) * r;
+  activeLight.position.set(lx, ly, lz);
+  lightHelper.position.copy(activeLight.position);
+
+  // Pulse light intensity slightly for dramatic effect
+  if (activeLight === pointLight) {
+    activeLight.intensity = 6.0 + Math.sin(t * 1.8) * 0.8;
+  }
+
+  // Rotate mesh
+  if (mainMesh) {
+    mainMesh.rotation.y += rotSpeed * 0.008;
+    mainMesh.rotation.x += rotSpeed * 0.003;
+  }
+
+  // Rotate stars
+  if (stars && stars.material.opacity > 0) {
+    stars.rotation.y += 0.0001;
+  }
+
+  // FPS
+  fpsCnt++;
+  const now = performance.now();
+  if (now - fpsLast > 1000) {
+    document.getElementById('fps').textContent = 'FPS: ' + fpsCnt;
+    fpsCnt = 0; fpsLast = now;
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+ 
+// ─── RESIZE ──────────────────────────────────────────────────────
+function onResize() {
+  const c = document.getElementById('canvas-container');
+  camera.aspect = c.clientWidth / c.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(c.clientWidth, c.clientHeight);
+}
+ 
+// ─── EXPOSED API (window.*) ───────────────────────────────────────
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['shading','textures','controls'][i] === tab);
+  });
+  document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+};
+ 
+window.selectShading = function(mode, el) {
+  currentShading = mode;
+  document.querySelectorAll('#tab-shading .card').forEach(c => c.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  buildMesh(currentShape);
+  document.getElementById('mode-label').textContent = mode.toUpperCase();
+  updateInfo(mode);
+};
+ 
+window.selectTexture = function(type) {
+  document.querySelectorAll('#tab-textures .card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  applyTexture(type);
+  updateInfoTex(type);
+};
+ 
+function applyTexture(type) {
+  if (!mainMesh) return;
+  mainMesh.material.dispose();
+  switch(type) {
+    case 'checker':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: buildCheckerTex(),
+        roughness: 0.35, metalness: 0.15,
+        emissive: new THREE.Color(0x001122), emissiveIntensity: 0.15,
+      }); break;
+    case 'gradient':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        map: buildGradientTex(),
+        roughness: 0.6, metalness: 0.05,
+      }); break;
+    case 'wireframe':
+      mainMesh.material = new THREE.MeshBasicMaterial({
+        color: 0x00eeff, wireframe: true,
+      }); break;
+    case 'emissive':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        color: 0x110022,
+        emissive: new THREE.Color(0xaa44ff), emissiveIntensity: 4.0,
+        emissiveMap: buildEmissiveTex(),
+        roughness: 0.3, metalness: 0.6,
+      }); break;
+    case 'metal':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        map: buildScratchedMetalTex(),
+        roughnessMap: buildRoughnessGradientTex(),
+        metalness: 1.0, roughness: 0.12,
+        emissive: new THREE.Color(0x001122), emissiveIntensity: 0.2,
+      }); break;
+    case 'wood':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        map: buildWoodTex(),
+        roughness: 0.82, metalness: 0.0,
+        emissive: new THREE.Color(0x110500), emissiveIntensity: 0.1,
+      }); break;
+    case 'marble':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        map: buildMarbleTex(),
+        roughness: 0.08, metalness: 0.05,
+        emissive: new THREE.Color(0x0a0a14), emissiveIntensity: 0.08,
+      }); break;
+    case 'displacement':
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        map: buildDisplacementLikeTex(),
+        bumpMap: buildDisplacementLikeTex(),
+        bumpScale: 0.18,
+        roughness: 0.65, metalness: 0.1,
+        emissive: new THREE.Color(0x0a0520), emissiveIntensity: 0.12,
+      }); break;
+    default: // color / diffuse
+      mainMesh.material = new THREE.MeshStandardMaterial({
+        color: 0x1188ff, roughness: 0.5, metalness: 0.1,
+      }); break;
+  }
+}
+ 
+function buildCheckerTex() {
+  const size = 512;
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const s = size / 8;
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+    const even = (x + y) % 2 === 0;
+    ctx.fillStyle = even ? '#00eeff' : '#110033';
+    ctx.fillRect(x * s, y * s, s, s);
+    // inner glow on bright tiles
+    if(even) {
+      const grd = ctx.createRadialGradient(x*s+s/2,y*s+s/2,0,x*s+s/2,y*s+s/2,s*0.5);
+      grd.addColorStop(0,'rgba(255,255,255,0.25)'); grd.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=grd; ctx.fillRect(x*s,y*s,s,s);
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
+  return tex;
+}
+
+function buildGradientTex() {
+  const size = 512;
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(size, size);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const i = (y * size + x) * 4;
+    const u = x / size, v = y / size;
+    // Vivid UV-map style
+    img.data[i]   = Math.round(u * 255);           // R = U coord
+    img.data[i+1] = Math.round(v * 255);           // G = V coord
+    img.data[i+2] = Math.round((1-u*v) * 120);    // B = diagonal
+    img.data[i+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  return tex;
+}
+ 
+window.setShape = function(shape) {
+  currentShape = shape;
+  document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('shape-' + shape).classList.add('active');
+  buildMesh(shape);
+};
+ 
+window.setLight = function(type) {
+  currentLight = type;
+  document.querySelectorAll('.mode-btn[id^="light-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('light-' + type).classList.add('active');
+  pointLight.visible = type === 'point';
+  dirLight.visible   = type === 'directional';
+  spotLight.visible  = type === 'spot';
+  activeLight = type === 'point' ? pointLight : type === 'directional' ? dirLight : spotLight;
+  lightHelper.material.color.set(type === 'spot' ? 0x7c3aed : 0x00d4ff);
+};
+ 
+window.setIntensity = function(v) {
+  activeLight.intensity = parseFloat(v);
+  document.getElementById('lbl-intensity').textContent = parseFloat(v).toFixed(1);
+};
+ 
+window.setMetal = function(v) {
+  if (mainMesh && mainMesh.material.metalness !== undefined) mainMesh.material.metalness = parseFloat(v);
+  document.getElementById('lbl-metal').textContent = parseFloat(v).toFixed(2);
+};
+ 
+window.setRough = function(v) {
+  if (mainMesh && mainMesh.material.roughness !== undefined) mainMesh.material.roughness = parseFloat(v);
+  document.getElementById('lbl-rough').textContent = parseFloat(v).toFixed(2);
+};
+ 
+window.setSpeed = function(v) {
+  rotSpeed = parseFloat(v);
+  document.getElementById('lbl-speed').textContent = parseFloat(v).toFixed(1);
+};
+ 
+window.setEnv = function(env) {
+  document.querySelectorAll('.mode-btn[id^="env-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('env-' + env).classList.add('active');
+  scene.fog = null; // always clear fog so object stays visible
+  if (env === 'dark') {
+    scene.background = new THREE.Color(0x060c1a);
+    stars.material.opacity = 0;
+  } else if (env === 'light') {
+    scene.background = new THREE.Color(0x1a2a5a);
+    stars.material.opacity = 0;
+  } else {
+    scene.background = new THREE.Color(0x000510);
+    stars.material.opacity = 0.9;
+  }
+};
+ 
+// Info box
+const INFO = {
+  phong:   { title:'PHONG SHADING', desc:'Iluminación por píxel con componentes ambiental, difusa y especular (ADS). Produce reflejos realistas y bordes suaves. Estándar en tiempo real desde los años 80.' },
+  flat:    { title:'FLAT SHADING', desc:'Una normal por triángulo produce un color uniforme. Muy eficiente. Da aspecto cristalino (low-poly). Ideal para estilos artísticos geométricos.' },
+  gouraud: { title:'GOURAUD SHADING', desc:'Colores calculados en vértices e interpolados entre ellos. Suave y económico, pero puede perder brillos especulares en el interior de polígonos.' },
+  cel:     { title:'CEL / TOON SHADING', desc:'Iluminación posterizada en 4 niveles discretos. Produce apariencia de anime/manga. Puede combinarse con contorno negro (silhouette) para efecto 2D completo.' },
+  normal:  { title:'NORMAL MAP SHADING', desc:'Cada píxel de la textura RGB codifica una normal perturbada. Permite simular miles de poligonos de detalle sin coste geométrico real. Estándar en videojuegos AAA.' },
+  pbr:     { title:'PBR — PHYSICALLY BASED', desc:'BRDF basada en microfacetas. Metalicidad y rugosidad controlan las propiedades del material de forma física y consistente bajo cualquier iluminación.' },
+};
+ 
+// Info box — texturas
+const INFO_TEX = {
+  color:       { title:'DIFFUSE MAP · ALBEDO',     desc:'Textura base de color pura, sin cálculo de iluminación. Define el color "real" de la superficie antes de aplicar luces y sombras.' },
+  checker:     { title:'CHECKER PROCEDURAL',        desc:'Cuadrícula generada matemáticamente, sin imagen fuente. Infinitamente escalable sin pixelado. Glow neón en bordes mediante radialGradient.' },
+  gradient:    { title:'DEGRADADO UV',              desc:'Los canales R y G codifican las coordenadas U y V del mapeo de textura. Herramienta clave para depurar el unwrap UV de cualquier modelo.' },
+  wireframe:   { title:'MALLA POLIGONAL',           desc:'Muestra la estructura geométrica pura: aristas, vértices y triángulos. Permite analizar la densidad de polígonos y el flujo de la topología.' },
+  emissive:    { title:'MATERIAL EMISIVO',          desc:'Superficie que emite luz propia independientemente de la iluminación de la escena. Simula LEDs, pantallas, lava o cualquier fuente de luz autónoma.' },
+  metal:       { title:'METAL RAYADO · PBR',        desc:'Metalness 1.0 con mapa de rugosidad procedural. Estrías horizontales simulan acero cepillado. El roughnessMap controla el reflejo de forma no uniforme.' },
+  wood:        { title:'MADERA PROCEDURAL',         desc:'Anillos concéntricos generados con seno + ruido sobre la distancia al centro. Simula la veta real de la madera sin ninguna imagen fuente.' },
+  marble:      { title:'MÁRMOL PROCEDURAL',         desc:'Vetas creadas con turbulencia sinusoidal en 5 octavas. El patrón es continuo e infinito. Ajustando la frecuencia se obtiene desde mármol fino hasta jaspe.' },
+  displacement:{ title:'BUMP MAP · RELIEVE',        desc:'Mapa de alturas sinusoidal aplicado como bumpMap. Perturba las normales por píxel para simular relieve visual sin modificar la geometría real del modelo.' },
+};
+
+function updateInfoTex(type) {
+  const i = INFO_TEX[type];
+  if (!i) return;
+  document.getElementById('info-title').textContent = i.title;
+  document.getElementById('info-desc').textContent  = i.desc;
+}
+
+function updateInfo(mode) {
+  const i = INFO[mode] || INFO.phong;
+  document.getElementById('info-title').textContent = i.title;
+  document.getElementById('info-desc').textContent  = i.desc;
+}
+ 
+// ─── START ─────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

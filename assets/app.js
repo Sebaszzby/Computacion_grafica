@@ -368,3 +368,78 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+/* ════════════════════════════════════════
+   TRABAJO GRUPAL — añadir al FINAL de assets/app.js
+   Visor para PDF, PPTX y HTML
+════════════════════════════════════════ */
+
+(function () {
+    /* Construye la URL base del repo (funciona en GitHub Pages y en local) */
+    function baseURL() {
+        return window.location.href
+            .split('?')[0]
+            .replace(/#.*$/, '')
+            .replace(/\/[^/]*$/, '/');
+    }
+
+    const ARCHIVOS = {
+        pdf: {
+            tipo:   'Monografía · PDF',
+            nombre: 'Monografia_Sombreado_3D.pdf',
+            path:   'Ejercicios/Trabajo%20Grupal/Monografia_Sombreado_3D.pdf',
+            /* Google Docs Viewer renderiza PDFs sin necesidad de descarga */
+            viewer: src => `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(src)}`,
+        },
+        pptx: {
+            tipo:   'Diapositivas · PPTX',
+            nombre: 'SOMBREADO_Y_TEXTURIZADO_DE_OBJETOS_3D.pptx',
+            path:   'Ejercicios/Trabajo%20Grupal/SOMBREADO_Y_TEXTURIZADO_DE_OBJETOS_3D.pptx',
+            /* Office Online Viewer para PPTX */
+            viewer: src => `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}`,
+        },
+        html: {
+            tipo:   'Ejercicio Práctico · HTML',
+            nombre: 'Sombreado_Texturizado_3D_final.html',
+            path:   'Ejercicios/Trabajo%20Grupal/Sombreado_Texturizado_3D_final.html',
+            /* El HTML se abre directo en el iframe */
+            viewer: src => src,
+        },
+    };
+
+    window.abrirTG = function (tipo) {
+        const cfg    = ARCHIVOS[tipo];
+        if (!cfg) return;
+
+        const visor  = document.getElementById('tg-visor');
+        const frame  = document.getElementById('tg-frame');
+        const elTipo = document.getElementById('tg-visor-tipo');
+        const elNom  = document.getElementById('tg-visor-nombre');
+
+        const src    = baseURL() + cfg.path;
+        const url    = cfg.viewer(src);
+
+        if (elTipo) elTipo.textContent = cfg.tipo;
+        if (elNom)  elNom.textContent  = cfg.nombre;
+
+        frame.src = url;
+        visor.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.cerrarTG = function () {
+        const visor = document.getElementById('tg-visor');
+        const frame = document.getElementById('tg-frame');
+        visor.style.display = 'none';
+        frame.src = '';
+        document.body.style.overflow = '';
+    };
+
+    /* Cerrar con Escape */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            const visor = document.getElementById('tg-visor');
+            if (visor && visor.style.display === 'flex') window.cerrarTG();
+        }
+    });
+})();
